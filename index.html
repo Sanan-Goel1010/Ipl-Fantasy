@@ -269,7 +269,7 @@ let DB, stats={}, teamNames={}, renamingId=null;
 let lastSync=0;
 
 function calcRaw(p){
-  const s=stats[p.name]||{runs:0,wickets:0,catches:0};
+  const s=findStats(p.name);
   return s.runs*100+s.wickets*2000+s.catches*250;
 }
 function calcPts(p){
