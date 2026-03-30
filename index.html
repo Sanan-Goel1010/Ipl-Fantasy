@@ -465,50 +465,75 @@ function render(){
 function renderTeams(){
   const el=document.getElementById('teamBoard');
   const sorted=[...TEAMS_DEF].sort((a,b)=>teamTotal(b)-teamTotal(a));
+  const leader=sorted[0];
 
-  el.innerHTML=sorted.map((t,i)=>{
-    const name=teamNames[t.id]||t.name;
-    const total=teamTotal(t);
-    const leader=sorted[0];
-    const border=i===0?'#f5a623':i===1?'#555':i===2?'#5a3a1a':'#2a2a3d';
-    const shadow=i===0?'box-shadow:0 0 24px #f5a62330':'';
-
-    const roster=t.players.map(p=>{
-      const s=findStats(p.name, p.ipl);
-      const pts=calcPts(p);
-      const slotBadge=p.slot==='C'?`<span class="badge" style="background:#FFD700;color:#000;margin-left:4px">C</span>`:
-                      p.slot==='VC'?`<span class="badge" style="background:#b0b0b0;color:#000;margin-left:4px">VC</span>`:'';
-      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #181828;flex-wrap:wrap">
-        <div style="flex:1;min-width:120px;font-weight:600;color:#f0ece4">${p.name}${slotBadge}<span style="font-size:12px;color:#555;margin-left:6px">${p.ipl}</span></div>
-        <div style="display:flex;gap:16px;font-size:13px;color:#888">
-          <span>🏏 <b style="color:#7ec8e3">${s.runs}</b></span>
-          <span>🎯 <b style="color:#ff7b7b">${s.wickets}</b></span>
-          <span>🤲 <b style="color:#7bff9e">${s.catches}</b></span>
-        </div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#f5a623;min-width:70px;text-align:right">${fmt(pts)}</div>
-      </div>`;
-    }).join('');
-
-    return `<div style="background:#111120;border:1px solid ${border};border-radius:12px;padding:20px;margin-bottom:14px;${shadow}">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:34px;color:${rankColor(i)};min-width:44px">${medal(i)}</div>
-        <div style="flex:1">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:#f0ece4;letter-spacing:2px;line-height:1">${name}</div>
-            <button onclick="openRename('${t.id}')" style="background:#1e1e30;border:1px solid #333;color:#888;border-radius:5px;padding:3px 10px;font-size:12px">✏️ Rename</button>
+  // Leaderboard strip at top
+  const strip=`<div style="background:#111120;border:1px solid #2a2a3d;border-radius:12px;overflow:hidden;margin-bottom:20px">
+    ${sorted.map((t,i)=>{
+      const name=teamNames[t.id]||t.name;
+      const total=teamTotal(t);
+      const rc=rankColor(i);
+      const pct=teamTotal(leader)>0?Math.round(total/teamTotal(leader)*100):0;
+      return `<div style="display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid #1a1a2a;${i===0?'background:#1c1505;':''}">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${rc};min-width:36px">${medal(i)}</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#f0ece4;letter-spacing:1px">${name}</span>
+            <button onclick="openRename('${t.id}')" style="background:transparent;border:none;color:#555;font-size:11px;cursor:pointer">✏️</button>
           </div>
-          <div style="font-size:13px;color:#666;margin-top:2px">👤 ${t.owner}</div>
+          <div style="height:3px;background:#1e1e2a;border-radius:2px;margin-top:5px;overflow:hidden">
+            <div style="height:100%;width:${pct}%;background:${i===0?'#f5a623':i===1?'#aaa':i===2?'#cd7f32':'#3a3a6a'};border-radius:2px"></div>
+          </div>
         </div>
-        <div style="text-align:right">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;color:#f5a623;line-height:1">${fmt(total)}</div>
-          <div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px">Fantasy Points</div>
-          ${i===0?'<div style="color:#f5a623;font-size:12px;font-weight:700;margin-top:2px">👑 LEADER</div>':''}
-          ${i>0?`<div style="color:#444;font-size:12px;margin-top:2px">-${fmt(teamTotal(leader)-total)} from 1st</div>`:''}
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:${i===0?'#f5a623':'#ddd'};line-height:1">${fmt(total)}</div>
+          ${i>0?`<div style="font-size:11px;color:#555">-${fmt(teamTotal(leader)-total)}</div>`:'<div style="font-size:11px;color:#f5a623;font-weight:700">👑 LEADER</div>'}
         </div>
-      </div>
-      <div style="border-top:1px solid #1e1e30;padding-top:10px">${roster}</div>
-    </div>`;
-  }).join('');
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  // Team detail cards in 2-col grid
+  const cards=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:12px">
+    ${sorted.map((t,i)=>{
+      const name=teamNames[t.id]||t.name;
+      const total=teamTotal(t);
+      const border=i===0?'#f5a623':i===1?'#888':i===2?'#cd7f32':'#252535';
+
+      const roster=t.players.map(p=>{
+        const s=findStats(p.name,p.ipl);
+        const pts=calcPts(p);
+        const hasPts=pts>0;
+        const slotBadge=p.slot==='C'?'<span style="background:#FFD700;color:#000;border-radius:3px;font-size:9px;font-weight:900;padding:1px 4px;margin-left:3px;vertical-align:middle">C</span>':
+                        p.slot==='VC'?'<span style="background:#aaa;color:#000;border-radius:3px;font-size:9px;font-weight:900;padding:1px 4px;margin-left:3px;vertical-align:middle">VC</span>':'';
+        return `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid #151525">
+          <div style="flex:1;min-width:0;overflow:hidden">
+            <span style="font-size:13px;font-weight:700;color:${hasPts?'#e8e4dc':'#666'}">${p.name}</span>${slotBadge}<span style="font-size:10px;color:#3a3a5a;margin-left:4px">${p.ipl}</span>
+          </div>
+          <div style="display:flex;gap:6px;font-size:11px;flex-shrink:0;white-space:nowrap">
+            ${s.runs>0?`<span style="color:#7ec8e3">🏏${s.runs}</span>`:''}
+            ${s.wickets>0?`<span style="color:#ff7b7b">🎯${s.wickets}</span>`:''}
+            ${s.catches>0?`<span style="color:#7bff9e">🤲${s.catches}</span>`:''}
+          </div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:${hasPts?'#f5a623':'#2a2a3a'};min-width:44px;text-align:right">${hasPts?fmt(pts):'-'}</div>
+        </div>`;
+      }).join('');
+
+      return `<div style="background:#111120;border:1px solid ${border};border-radius:10px;padding:12px;${i===0?'box-shadow:0 0 16px #f5a62318':''}">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #1e1e30">
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${rankColor(i)}">${medal(i)}</span>
+          <div style="flex:1">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:#f0ece4;letter-spacing:1px;line-height:1">${name}</div>
+            <div style="font-size:11px;color:#555">👤 ${t.owner}</div>
+          </div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#f5a623">${fmt(total)}</div>
+        </div>
+        ${roster}
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  el.innerHTML=strip+cards;
 }
 
 function renderPlayers(){
