@@ -73,7 +73,7 @@
     <button class="tab-btn" onclick="switchTab(1,this)">👤 Player Rankings</button>
   </div>
 
-  <div style="padding:20px;max-width:1000px;margin:0 auto">
+  <div style="padding:16px 12px">
     <!-- Sync bar -->
     <div class="sync-bar">
       <div id="syncDot" class="dot yellow"></div>
@@ -478,7 +478,7 @@ function renderTeams(){
         <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${rc};min-width:36px">${medal(i)}</div>
         <div style="flex:1;min-width:0">
           <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#f0ece4;letter-spacing:1px">${name}</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:19px;color:#ffffff;letter-spacing:1.5px">${name}</span>
             <button onclick="openRename('${t.id}')" style="background:transparent;border:none;color:#555;font-size:11px;cursor:pointer">✏️</button>
           </div>
           <div style="height:3px;background:#1e1e2a;border-radius:2px;margin-top:5px;overflow:hidden">
@@ -486,15 +486,15 @@ function renderTeams(){
           </div>
         </div>
         <div style="text-align:right;flex-shrink:0">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:${i===0?'#f5a623':'#ddd'};line-height:1">${fmt(total)}</div>
-          ${i>0?`<div style="font-size:11px;color:#555">-${fmt(teamTotal(leader)-total)}</div>`:'<div style="font-size:11px;color:#f5a623;font-weight:700">👑 LEADER</div>'}
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:${i===0?'#f5a623':'#eee'};line-height:1">${fmt(total)}</div>
+          ${i>0?`<div style="font-size:11px;color:#888">-${fmt(teamTotal(leader)-total)}</div>`:'<div style="font-size:11px;color:#f5a623;font-weight:700">👑 LEADER</div>'}
         </div>
       </div>`;
     }).join('')}
   </div>`;
 
   // Team detail cards in 2-col grid
-  const cards=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:12px">
+  const cards=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
     ${sorted.map((t,i)=>{
       const name=teamNames[t.id]||t.name;
       const total=teamTotal(t);
@@ -508,14 +508,14 @@ function renderTeams(){
                         p.slot==='VC'?'<span style="background:#aaa;color:#000;border-radius:3px;font-size:9px;font-weight:900;padding:1px 4px;margin-left:3px;vertical-align:middle">VC</span>':'';
         return `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid #151525">
           <div style="flex:1;min-width:0;overflow:hidden">
-            <span style="font-size:13px;font-weight:700;color:${hasPts?'#e8e4dc':'#666'}">${p.name}</span>${slotBadge}<span style="font-size:10px;color:#3a3a5a;margin-left:4px">${p.ipl}</span>
+            <span style="font-size:13px;font-weight:700;color:${hasPts?'#ffffff':'#999'}">${p.name}</span>${slotBadge}<span style="font-size:10px;color:#666;margin-left:4px">${p.ipl}</span>
           </div>
           <div style="display:flex;gap:6px;font-size:11px;flex-shrink:0;white-space:nowrap">
             ${s.runs>0?`<span style="color:#7ec8e3">🏏${s.runs}</span>`:''}
             ${s.wickets>0?`<span style="color:#ff7b7b">🎯${s.wickets}</span>`:''}
             ${s.catches>0?`<span style="color:#7bff9e">🤲${s.catches}</span>`:''}
           </div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:${hasPts?'#f5a623':'#2a2a3a'};min-width:44px;text-align:right">${hasPts?fmt(pts):'-'}</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:${hasPts?'#f5a623':'#444'};min-width:44px;text-align:right">${hasPts?fmt(pts):'-'}</div>
         </div>`;
       }).join('');
 
@@ -523,8 +523,8 @@ function renderTeams(){
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #1e1e30">
           <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${rankColor(i)}">${medal(i)}</span>
           <div style="flex:1">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:#f0ece4;letter-spacing:1px;line-height:1">${name}</div>
-            <div style="font-size:11px;color:#555">👤 ${t.owner}</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#ffffff;letter-spacing:1.5px;line-height:1">${name}</div>
+            <div style="font-size:11px;color:#888">👤 ${t.owner}</div>
           </div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#f5a623">${fmt(total)}</div>
         </div>
