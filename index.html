@@ -33,12 +33,12 @@
 </style>
 </head>
 <body>
- 
+
 <div id="loading">
   <div class="spinner"></div>
   <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#f5a623;letter-spacing:3px">LOADING IPL FANTASY…</div>
 </div>
- 
+
 <!-- Rename Modal -->
 <div class="modal-bg" id="renameModal" style="display:none" onclick="if(event.target===this)closeRename()">
   <div class="modal">
@@ -50,7 +50,7 @@
     </div>
   </div>
 </div>
- 
+
 <div id="app" style="display:none">
   <!-- HEADER -->
   <div style="background:linear-gradient(135deg,#1a0a00,#0a0a14 60%);border-bottom:2px solid #f5a623;padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
@@ -66,13 +66,13 @@
       <span style="background:#1a1a2e;border:1px solid #2a2a3d;border-radius:4px;padding:3px 8px">C=<b style="color:#FFD700">2×</b> VC=<b style="color:#C0C0C0">1.5×</b></span>
     </div>
   </div>
- 
+
   <!-- TABS -->
   <div style="display:flex;border-bottom:1px solid #1e1e30;background:#0d0d1a">
     <button class="tab-btn active" onclick="switchTab(0,this)">🏆 Team Standings</button>
     <button class="tab-btn" onclick="switchTab(1,this)">👤 Player Rankings</button>
   </div>
- 
+
   <div style="padding:20px;max-width:1000px;margin:0 auto">
     <!-- Sync bar -->
     <div class="sync-bar">
@@ -80,12 +80,12 @@
       <div id="syncStatus" style="color:#aaa;flex:1">Loading IPL 2026 season stats…</div>
       <button onclick="doSync(true)" style="background:#1a3a1a;border:1px solid #2a5a2a;color:#7bff9e;border-radius:6px;padding:5px 14px;font-size:12px;font-weight:700">↻ REFRESH</button>
     </div>
- 
+
     <!-- TEAM STANDINGS -->
     <div id="tab0">
       <div id="teamBoard"></div>
     </div>
- 
+
     <!-- PLAYER RANKINGS -->
     <div id="tab1" style="display:none">
       <div style="overflow-x:auto">
@@ -99,16 +99,16 @@
     </div>
   </div>
 </div>
- 
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase,ref,onValue,set,update,get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
- 
+
 // ── FIREBASE CONFIG ────────────────────────────────────────────────────────
 const DB_URL = 'https://ipl-fantasy-55b9f-default-rtdb.firebaseio.com';
 const API_KEY = 'aa84e456-dba0-4c58-ae35-59815fe6eea8';
 const IPL_2026_ID = '87c62aac-bc3c-4738-ab93-19da0690488f';
- 
+
 // ── HARDCODED TEAMS ────────────────────────────────────────────────────────
 // slot: C=captain(2x), VC=vice(1.5x), N=normal
 const TEAMS_DEF = [
@@ -191,7 +191,7 @@ const TEAMS_DEF = [
     {name:'Josh Hazlewood',    ipl:'RCB', slot:'N'},
   ]},
 ];
- 
+
 // Name aliases for API matching
 const ALIASES = {
   'suryakumar yadav':['sk yadav','suryakumar yadav','sky','surya kumar yadav'],
@@ -263,11 +263,11 @@ const ALIASES = {
   'mohammed siraj':['m siraj','mohammed siraj','siraj'],
   'jos butler':['j butler','jos buttler'],
 };
- 
+
 // ── STATE ──────────────────────────────────────────────────────────────────
 let DB, stats={}, teamNames={}, renamingId=null;
 let lastSync=0;
- 
+
 function calcRaw(p){
   const s=stats[p.name]||{runs:0,wickets:0,catches:0};
   return s.runs*100+s.wickets*2000+s.catches*250;
@@ -280,7 +280,7 @@ function teamTotal(team){ return team.players.reduce((s,p)=>s+calcPts(p),0); }
 function fmt(n){ return Math.round(n).toLocaleString(); }
 function medal(i){ return i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`; }
 function rankColor(i){ return i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#cd7f32':'#aaa'; }
- 
+
 // ── NAME MATCHING ──────────────────────────────────────────────────────────
 function matchName(apiName){
   const an=apiName.toLowerCase().trim();
@@ -296,7 +296,7 @@ function matchName(apiName){
   }
   return an;
 }
- 
+
 function findStats(playerName){
   const pn=playerName.toLowerCase();
   // Direct lookup
@@ -315,7 +315,7 @@ function findStats(playerName){
   }
   return {runs:0,wickets:0,catches:0};
 }
- 
+
 // ── FIREBASE BOOT ──────────────────────────────────────────────────────────
 async function boot(){
   try{
@@ -333,13 +333,13 @@ async function boot(){
     else{ setStatus('yellow','Click ↻ REFRESH to load IPL 2026 stats'); }
   }catch(e){ console.error(e); document.getElementById('syncStatus').textContent='Firebase error: '+e.message; }
 }
- 
+
 // ── SYNC ──────────────────────────────────────────────────────────────────
 function setStatus(color,text){
   ['syncDot'].forEach(id=>{ const el=document.getElementById(id); if(el)el.className='dot '+color; });
   const s=document.getElementById('syncStatus'); if(s)s.textContent=text;
 }
- 
+
 window.doSync=async function(force=true){
   setStatus('yellow','Checking for new IPL 2026 matches…');
   try{
@@ -349,20 +349,20 @@ window.doSync=async function(force=true){
     if(sid.status==='failure') throw new Error(sid.reason||'API limit reached — try again later');
     const completed=(sid.data?.matchList||[]).filter(m=>m.matchEnded===true);
     if(!completed.length){ setStatus('yellow','No completed IPL 2026 matches yet'); return; }
- 
+
     // Step 2: Load already-processed match IDs from Firebase (free, no API hit)
     const processedSnap=await get(ref(DB,'processedMatches'));
     const processed=processedSnap.val()||{};
- 
+
     // Step 3: Only fetch NEW matches not yet processed
     const newMatches=completed.filter(m=>!processed[m.id]);
     if(!newMatches.length){
       setStatus('green',`✅ Already up to date · ${completed.length} matches cached · ${new Date().toLocaleTimeString()}`);
       return;
     }
- 
+
     setStatus('yellow',`${newMatches.length} new match(es) found · fetching scorecards… (${newMatches.length*10+1} API hits)`);
- 
+
     // Step 4: Load existing cached stats from Firebase
     const existingSnap=await get(ref(DB,'stats'));
     const aggRuns={}, aggWkts={}, aggCatch={};
@@ -373,7 +373,7 @@ window.doSync=async function(force=true){
       aggWkts[k]=v.wickets||0;
       aggCatch[k]=v.catches||0;
     }
- 
+
     // Step 5: Fetch ONLY new match scorecards
     const newProcessed={...processed};
     for(let i=0;i<newMatches.length;i++){
@@ -406,14 +406,14 @@ window.doSync=async function(force=true){
         newProcessed[m.id]=true;
       }catch(e){ console.warn('Scorecard error:',e.message); }
     }
- 
+
     // Step 6: Save merged stats + processed match IDs to Firebase
     const mergedStats={};
     const allKeys=[...new Set([...Object.keys(aggRuns),...Object.keys(aggWkts),...Object.keys(aggCatch)])];
     for(const c of allKeys){
       mergedStats[c]={runs:aggRuns[c]||0,wickets:aggWkts[c]||0,catches:aggCatch[c]||0};
     }
- 
+
     await set(ref(DB,'stats'),mergedStats);
     await set(ref(DB,'processedMatches'),newProcessed);
     await set(ref(DB,'lastSync'),Date.now());
@@ -424,7 +424,7 @@ window.doSync=async function(force=true){
     setStatus('red','❌ '+e.message);
   }
 };
- 
+
 // ── TABS ──────────────────────────────────────────────────────────────────
 window.switchTab=function(idx,btn){
   document.getElementById('tab0').style.display=idx===0?'block':'none';
@@ -432,7 +432,7 @@ window.switchTab=function(idx,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
 };
- 
+
 // ── RENAME ────────────────────────────────────────────────────────────────
 window.openRename=function(teamId){
   renamingId=teamId;
@@ -449,24 +449,24 @@ window.confirmRename=function(){
   update(ref(DB,'teamNames'),{[renamingId]:val});
   closeRename();
 };
- 
+
 // ── RENDER ────────────────────────────────────────────────────────────────
 function render(){
   renderTeams();
   renderPlayers();
 }
- 
+
 function renderTeams(){
   const el=document.getElementById('teamBoard');
   const sorted=[...TEAMS_DEF].sort((a,b)=>teamTotal(b)-teamTotal(a));
- 
+
   el.innerHTML=sorted.map((t,i)=>{
     const name=teamNames[t.id]||t.name;
     const total=teamTotal(t);
     const leader=sorted[0];
     const border=i===0?'#f5a623':i===1?'#555':i===2?'#5a3a1a':'#2a2a3d';
     const shadow=i===0?'box-shadow:0 0 24px #f5a62330':'';
- 
+
     const roster=t.players.map(p=>{
       const s=findStats(p.name);
       const pts=calcPts(p);
@@ -482,7 +482,7 @@ function renderTeams(){
         <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#f5a623;min-width:70px;text-align:right">${fmt(pts)}</div>
       </div>`;
     }).join('');
- 
+
     return `<div style="background:#111120;border:1px solid ${border};border-radius:12px;padding:20px;margin-bottom:14px;${shadow}">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">
         <div style="font-family:'Bebas Neue',sans-serif;font-size:34px;color:${rankColor(i)};min-width:44px">${medal(i)}</div>
@@ -504,7 +504,7 @@ function renderTeams(){
     </div>`;
   }).join('');
 }
- 
+
 function renderPlayers(){
   // Collect all players with their fantasy team
   const allPlayers=[];
@@ -517,7 +517,7 @@ function renderPlayers(){
     });
   });
   allPlayers.sort((a,b)=>b.raw-a.raw);
- 
+
   const rc=i=>i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#cd7f32':'#555';
   document.getElementById('playerBoard').innerHTML=allPlayers.length===0
     ?`<tr><td colspan="8" style="text-align:center;padding:40px;color:#444">Loading…</td></tr>`
@@ -532,7 +532,7 @@ function renderPlayers(){
       <td style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:#f5a623">${fmt(p.raw)}</td>
     </tr>`).join('');
 }
- 
+
 boot();
 </script>
 </body>
