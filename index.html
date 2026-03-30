@@ -30,6 +30,12 @@
   #loading{position:fixed;inset:0;background:#0a0a14;z-index:999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
   .spinner{width:40px;height:40px;border:3px solid #1e1e30;border-top:3px solid #f5a623;border-radius:50%;animation:spin 1s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
+
+  @media(max-width:640px){
+    .tab-btn{padding:10px 16px !important;font-size:14px !important;letter-spacing:1px !important}
+    .header-badges{display:none !important}
+    .sync-bar{font-size:12px !important}
+  }
 </style>
 </head>
 <body>
@@ -56,10 +62,10 @@
   <div style="background:linear-gradient(135deg,#1a0a00,#0a0a14 60%);border-bottom:2px solid #f5a623;padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
     <div style="font-size:32px">🏏</div>
     <div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#f5a623;line-height:1">IPL FANTASY LEAGUE 2026</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(18px,4vw,28px);letter-spacing:2px;color:#f5a623;line-height:1">IPL FANTASY LEAGUE 2026</div>
       <div style="font-size:11px;color:#888;letter-spacing:2px;text-transform:uppercase">Friends League · Live Season Stats</div>
     </div>
-    <div style="margin-left:auto;display:flex;gap:8px;font-size:11px;flex-wrap:wrap;align-items:center">
+    <div class="header-badges" style="margin-left:auto;display:flex;gap:8px;font-size:11px;flex-wrap:wrap;align-items:center">
       <span style="background:#1a1a2e;border:1px solid #2a2a3d;border-radius:4px;padding:3px 8px">Run=<b style="color:#f5a623">100</b></span>
       <span style="background:#1a1a2e;border:1px solid #2a2a3d;border-radius:4px;padding:3px 8px">Wkt=<b style="color:#f5a623">2000</b></span>
       <span style="background:#1a1a2e;border:1px solid #2a2a3d;border-radius:4px;padding:3px 8px">Catch=<b style="color:#f5a623">250</b></span>
@@ -73,7 +79,7 @@
     <button class="tab-btn" onclick="switchTab(1,this)">👤 Player Rankings</button>
   </div>
 
-  <div style="padding:16px 12px">
+  <div style="padding:12px 8px">
     <!-- Sync bar -->
     <div class="sync-bar">
       <div id="syncDot" class="dot yellow"></div>
@@ -474,11 +480,11 @@ function renderTeams(){
       const total=teamTotal(t);
       const rc=rankColor(i);
       const pct=teamTotal(leader)>0?Math.round(total/teamTotal(leader)*100):0;
-      return `<div style="display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid #1a1a2a;${i===0?'background:#1c1505;':''}">
+      return `<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid #1a1a2a;${i===0?'background:#1c1505;':''}">
         <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${rc};min-width:36px">${medal(i)}</div>
         <div style="flex:1;min-width:0">
           <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-family:'Bebas Neue',sans-serif;font-size:19px;color:#ffffff;letter-spacing:1.5px">${name}</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:17px;color:#ffffff;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px">${name}</span>
             <button onclick="openRename('${t.id}')" style="background:transparent;border:none;color:#555;font-size:11px;cursor:pointer">✏️</button>
           </div>
           <div style="height:3px;background:#1e1e2a;border-radius:2px;margin-top:5px;overflow:hidden">
@@ -494,7 +500,7 @@ function renderTeams(){
   </div>`;
 
   // Team detail cards in 2-col grid
-  const cards=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+  const cards=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr));gap:10px">
     ${sorted.map((t,i)=>{
       const name=teamNames[t.id]||t.name;
       const total=teamTotal(t);
