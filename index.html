@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>IPL Fantasy League 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0a0a14;color:#f0ece4;font-family:'Barlow Condensed',sans-serif;font-size:16px;min-height:100vh}
+  ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#111}::-webkit-scrollbar-thumb{background:#f5a623;border-radius:3px}
+  table{width:100%;border-collapse:collapse}
+  th{padding:10px 16px;text-align:left;color:#f5a623;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;white-space:nowrap;background:#111120;border-bottom:2px solid #f5a623}
+  td{padding:10px 16px;border-bottom:1px solid #1a1a2a}
+  tr:hover td{background:#181828}
+  .tab-btn{padding:13px 24px;border:none;background:transparent;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;color:#666;transition:all .2s}
+  .tab-btn.active{color:#f5a623;border-bottom:2px solid #f5a623}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;animation:pulse 2s infinite}
+  .green{background:#7bff9e;box-shadow:0 0 6px #7bff9e}.yellow{background:#f5a623;box-shadow:0 0 6px #f5a623}.red{background:#ff4a4a;box-shadow:0 0 6px #ff4a4a}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .sync-bar{background:#0d1a0d;border:1px solid #1a3a1a;border-radius:8px;padding:10px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px}
+  .badge{display:inline-flex;align-items:center;justify-content:center;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:1px;padding:2px 6px;text-transform:uppercase}
+  .modal-bg{position:fixed;inset:0;background:#000a;z-index:100;display:flex;align-items:center;justify-content:center}
+  .modal{background:#111120;border:2px solid #f5a623;border-radius:12px;padding:28px;max-width:380px;width:90%}
+  input{background:#161624;color:#f0ece4;border:1px solid #2a2a3d;border-radius:6px;padding:8px 12px;font-family:'Barlow Condensed',sans-serif;font-size:15px;outline:none;width:100%}
+  input:focus{border-color:#f5a623}
+  button{cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:600;border:none;transition:all .15s}
+  .btn-gold{background:#f5a623;color:#000;border-radius:6px;padding:9px 18px;font-size:14px;font-weight:700}
+  .btn-dark{background:#2a2a3d;color:#aaa;border-radius:6px;padding:9px 18px;font-size:14px}
+  #loading{position:fixed;inset:0;background:#0a0a14;z-index:999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+  .spinner{width:40px;height:40px;border:3px solid #1e1e30;border-top:3px solid #f5a623;border-radius:50%;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#f5a623;letter-spacing:3px">LOADING IPL FANTASY…</div>
+</div>
+
+<!-- Rename Modal -->
+<div class="modal-bg" id="renameModal" style="display:none" onclick="if(event.target===this)closeRename()">
+  <div class="modal">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#f5a623;letter-spacing:2px;margin-bottom:16px">✏️ RENAME TEAM</div>
+    <input id="renameInput" placeholder="New team name…" style="margin-bottom:14px"/>
+    <div style="display:flex;gap:10px">
+      <button class="btn-gold" onclick="confirmRename()" style="flex:1">SAVE</button>
+      <button class="btn-dark" onclick="closeRename()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <!-- HEADER -->
+  <div style="background:linear-gradient(135deg,#1a0a00,#0a0a14 60%);border-bottom:2px solid #f5a623;padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <div style="font-size:32px">🏏</div>
+    <div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#f5a623;line-height:1">IPL FANTASY LEAGUE 2026</div>
+      <div style="font-size:11px;color:#888;letter-spacing:2px;text-transform:uppercase">Friends League · Live Season Stats</div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:8px;font-size:11px;flex-wrap:wrap;align-items:center">
+      <span style="background:#1a1a2e;border:1px solid #2a2a3d;border-radius:4px;padding:3px 8px">Run=<b style="color:#f5a623">100</b></span>
+      <span style="background:#1a1a2e;border:1px solid #2a2a3d;border-radius:4px;padding:3px 8px">Wkt=<b style="color:#f5a623">2000</b></span>
+      <span style="background:#1a1a2e;border:1px solid #2a2a3d;border-radius:4px;padding:3px 8px">Catch=<b style="color:#f5a623">250</b></span>
+      <span style="background:#1a1a2e;border:1px solid #2a2a3d;border-radius:4px;padding:3px 8px">C=<b style="color:#FFD700">2×</b> VC=<b style="color:#C0C0C0">1.5×</b></span>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div style="display:flex;border-bottom:1px solid #1e1e30;background:#0d0d1a">
+    <button class="tab-btn active" onclick="switchTab(0,this)">🏆 Team Standings</button>
+    <button class="tab-btn" onclick="switchTab(1,this)">👤 Player Rankings</button>
+  </div>
+
+  <div style="padding:20px;max-width:1000px;margin:0 auto">
+    <!-- Sync bar -->
+    <div class="sync-bar">
+      <div id="syncDot" class="dot yellow"></div>
+      <div id="syncStatus" style="color:#aaa;flex:1">Loading IPL 2026 season stats…</div>
+      <button onclick="doSync(true)" style="background:#1a3a1a;border:1px solid #2a5a2a;color:#7bff9e;border-radius:6px;padding:5px 14px;font-size:12px;font-weight:700">↻ REFRESH</button>
+    </div>
+
+    <!-- TEAM STANDINGS -->
+    <div id="tab0">
+      <div id="teamBoard"></div>
+    </div>
+
+    <!-- PLAYER RANKINGS -->
+    <div id="tab1" style="display:none">
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th>#</th><th>Player</th><th>Fantasy Team</th><th>IPL Team</th><th>Runs</th><th>Wickets</th><th>Catches</th><th>Raw Pts</th>
+          </tr></thead>
+          <tbody id="playerBoard"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase,ref,onValue,set,update,get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+// ── FIREBASE CONFIG ────────────────────────────────────────────────────────
+const DB_URL = 'https://ipl-fantasy-55b9f-default-rtdb.firebaseio.com';
+const API_KEY = '233ffadc-7357-4ba6-a497-7a541d9a7ed0';
+const IPL_2026_ID = '87c62aac-bc3c-4738-ab93-19da0690488f';
+
+// ── HARDCODED TEAMS ────────────────────────────────────────────────────────
+// slot: C=captain(2x), VC=vice(1.5x), N=normal
+const TEAMS_DEF = [
+  { id:'sanan', name:"Sanan's XI", owner:'Sanan', players:[
+    {name:'Phil Salt',       ipl:'KKR', slot:'N'},
+    {name:'Virat Kohli',     ipl:'RCB', slot:'C'},
+    {name:'Rajat Patidar',   ipl:'RCB', slot:'N'},
+    {name:'Shivam Dube',     ipl:'CSK', slot:'N'},
+    {name:'Sunil Narine',    ipl:'KKR', slot:'VC'},
+    {name:'Andre Russell',   ipl:'KKR', slot:'N'},
+    {name:'Sam Curran',      ipl:'CSK', slot:'N'},
+    {name:'Krunal Pandya',   ipl:'MI',  slot:'N'},
+    {name:'Rashid Khan',     ipl:'GT',  slot:'N'},
+    {name:'Varun Chakaravarthy',ipl:'KKR',slot:'N'},
+    {name:'Matheesha Pathirana',ipl:'CSK',slot:'N'},
+  ]},
+  { id:'kabir', name:"Kabir XI", owner:'Kabir', players:[
+    {name:'Travis Head',     ipl:'SRH', slot:'VC'},
+    {name:'Quinton de Kock', ipl:'KKR', slot:'N'},
+    {name:'Rishabh Pant',    ipl:'LSG', slot:'N'},
+    {name:'Tilak Varma',     ipl:'MI',  slot:'N'},
+    {name:'Rinku Singh',     ipl:'KKR', slot:'N'},
+    {name:'Cameron Green',   ipl:'MI',  slot:'N'},
+    {name:'Marco Jansen',    ipl:'MI',  slot:'N'},
+    {name:'Lungi Ngidi',     ipl:'CSK', slot:'N'},
+    {name:'Noor Ahmad',      ipl:'GT',  slot:'N'},
+    {name:'Kuldeep Yadav',   ipl:'DC',  slot:'N'},
+    {name:'Jasprit Bumrah',  ipl:'MI',  slot:'C'},
+  ]},
+  { id:'rishobh', name:"Rishobh XI", owner:'Rishobh', players:[
+    {name:'Suryakumar Yadav',ipl:'MI',  slot:'VC'},
+    {name:'Sai Sudarshan',   ipl:'GT',  slot:'C'},
+    {name:'Heinrich Klaasen',ipl:'SRH', slot:'N'},
+    {name:'Ishan Kishan',    ipl:'SRH', slot:'N'},
+    {name:'Vaibhav Suryavanshi',ipl:'RR',slot:'N'},
+    {name:'Jofra Archer',    ipl:'MI',  slot:'N'},
+    {name:'Will Jacks',      ipl:'RCB', slot:'N'},
+    {name:'Prasidh Krishna', ipl:'GT',  slot:'N'},
+    {name:'Naman Dhir',      ipl:'MI',  slot:'N'},
+    {name:'Nuwan Thushara',  ipl:'MI',  slot:'N'},
+    {name:'Sarfaraz Khan',   ipl:'DC',  slot:'N'},
+  ]},
+  { id:'kartik', name:"Kartik XI", owner:'Kartik', players:[
+    {name:'Abhishek Sharma', ipl:'SRH', slot:'C'},
+    {name:'Shreyas Iyer',    ipl:'PBKS',slot:'VC'},
+    {name:'Sanju Samson',    ipl:'RR',  slot:'N'},
+    {name:'Mitchell Marsh',  ipl:'LSG', slot:'N'},
+    {name:'Pat Cummins',     ipl:'SRH', slot:'N'},
+    {name:'Jos Buttler',     ipl:'GT',  slot:'N'},
+    {name:'Yuzvendra Chahal',ipl:'PBKS',slot:'N'},
+    {name:'Finn Allen',      ipl:'RCB', slot:'N'},
+    {name:'Rachin Ravindra', ipl:'CSK', slot:'N'},
+    {name:'Liam Livingstone',ipl:'PBKS',slot:'N'},
+    {name:'MS Dhoni',        ipl:'CSK', slot:'N'},
+  ]},
+  { id:'ashmit', name:"Ashmit's XI", owner:'Ashmit', players:[
+    {name:'Shubman Gill',    ipl:'GT',  slot:'N'},
+    {name:'KL Rahul',        ipl:'LSG', slot:'VC'},
+    {name:'Ruturaj Gaikwad', ipl:'CSK', slot:'N'},
+    {name:'Aiden Markram',   ipl:'SRH', slot:'N'},
+    {name:'Axar Patel',      ipl:'DC',  slot:'C'},
+    {name:'Marcus Stoinis',  ipl:'LSG', slot:'N'},
+    {name:'Ravindra Jadeja', ipl:'CSK', slot:'N'},
+    {name:'Arshdeep Singh',  ipl:'PBKS',slot:'N'},
+    {name:'Khaleel Ahmed',   ipl:'DC',  slot:'N'},
+    {name:'Mukesh Kumar',    ipl:'DC',  slot:'N'},
+    {name:'Mohammed Shami',  ipl:'GT',  slot:'N'},
+  ]},
+  { id:'jaiveer', name:"Jaiveer XI", owner:'Jaiveer', players:[
+    {name:'Rohit Sharma',    ipl:'MI',  slot:'N'},
+    {name:'Yashasvi Jaiswal',ipl:'RR',  slot:'N'},
+    {name:'Nicholas Pooran', ipl:'LSG', slot:'VC'},
+    {name:'Dewald Brevis',   ipl:'MI',  slot:'N'},
+    {name:'Hardik Pandya',   ipl:'MI',  slot:'C'},
+    {name:'Nitish Kumar Reddy',ipl:'SRH',slot:'N'},
+    {name:'Shardul Thakur',  ipl:'CSK', slot:'N'},
+    {name:'Bhuvneshwar Kumar',ipl:'RCB',slot:'N'},
+    {name:'Mohammed Siraj',  ipl:'RCB', slot:'N'},
+    {name:'Trent Boult',     ipl:'RR',  slot:'N'},
+    {name:'Josh Hazlewood',  ipl:'RCB', slot:'N'},
+  ]},
+];
+
+// Name aliases for API matching
+const ALIASES = {
+  'suryakumar yadav':['sk yadav','suryakumar yadav','sky','surya kumar yadav'],
+  'quinton de kock':['q de kock','de kock','quinton de kock'],
+  'heinrich klaasen':['klaasen','h klaasen','heinrich klaasen','klassen'],
+  'ishan kishan':['i kishan','ishan kishan'],
+  'vaibhav suryavanshi':['suryavanshi','v suryavanshi','vaibhav suryavanshi','sooryavanshi'],
+  'jofra archer':['j archer','archer','jofra archer'],
+  'will jacks':['w jacks','will jacks'],
+  'prasidh krishna':['p krishna','prasidh krishna','krishna'],
+  'yuzvendra chahal':['yuzi chahal','y chahal','yuzvendra chahal','chahal'],
+  'ms dhoni':['ms dhoni','dhoni','m dhoni'],
+  'ruturaj gaikwad':['r gaikwad','ruturaj gaikwad','rutu gaikwad'],
+  'ravindra jadeja':['r jadeja','ravindra jadeja','jadeja'],
+  'mohammed shami':['m shami','mohammed shami','md shami','shami'],
+  'yashasvi jaiswal':['y jaiswal','yashasvi jaiswal','jaiswal'],
+  'nitish kumar reddy':['nitish reddy','n reddy','nitish kumar reddy'],
+  'bhuvneshwar kumar':['b kumar','bhuvneshwar kumar','bhuvi'],
+  'noor ahmad':['noor ahmed','n ahmad','noor ahmad'],
+  'varun chakaravarthy':['varun chakravarthy','v chakaravarthy','varun chakaravarthy','chakaravarthy'],
+  'matheesha pathirana':['m pathirana','pathirana','matheesha pathirana'],
+  'tilak varma':['t varma','tilak varma','tilak verma'],
+  'mitchell marsh':['m marsh','mitchell marsh','marsh'],
+  'pat cummins':['p cummins','pat cummins','cummins'],
+  'jos buttler':['j buttler','jos buttler','buttler'],
+  'finn allen':['f allen','finn allen','allen'],
+  'rachin ravindra':['r ravindra','rachin ravindra','ravindra'],
+  'liam livingstone':['l livingstone','liam livingstone','livingstone'],
+  'aiden markram':['a markram','aiden markram','markram'],
+  'marcus stoinis':['m stoinis','marcus stoinis','stoinis'],
+  'khaleel ahmed':['k ahmed','khaleel ahmed'],
+  'mukesh kumar':['m kumar','mukesh kumar'],
+  'nicholas pooran':['n pooran','nicholas pooran','pooran'],
+  'dewald brevis':['d brevis','dewald brevis','brevis'],
+  'hardik pandya':['h pandya','hardik pandya','pandya'],
+  'shardul thakur':['s thakur','shardul thakur','thakur'],
+  'bhuvneshwar kumar':['bhuvaneshwar kumar','b kumar'],
+  'trent boult':['t boult','trent boult','boult'],
+  'josh hazlewood':['j hazlewood','josh hazlewood','hazlewood'],
+  'sanju samson':['s samson','sanju samson','samson'],
+  'phil salt':['p salt','phil salt','salt'],
+  'virat kohli':['v kohli','virat kohli','kohli'],
+  'rajat patidar':['r patidar','rajat patidar','patidar'],
+  'shivam dube':['s dube','shivam dube','dube'],
+  'sunil narine':['s narine','sunil narine','narine'],
+  'andre russell':['a russell','andre russell','russell'],
+  'sam curran':['s curran','sam curran','curran'],
+  'krunal pandya':['k pandya','krunal pandya'],
+  'rashid khan':['rashid','r khan','rashid khan'],
+  'travis head':['t head','travis head','head'],
+  'rishabh pant':['r pant','rishabh pant','pant'],
+  'rinku singh':['r singh','rinku singh','rinku'],
+  'cameron green':['c green','cameron green','green'],
+  'marco jansen':['m jansen','marco jansen','jansen'],
+  'lungi ngidi':['l ngidi','lungi ngidi','ngidi'],
+  'kuldeep yadav':['k yadav','kuldeep yadav','kuldeep'],
+  'jasprit bumrah':['j bumrah','jasprit bumrah','bumrah'],
+  'sai sudarshan':['s sudarshan','sai sudarshan','sudarshan'],
+  'abhishek sharma':['a sharma','abhishek sharma'],
+  'shreyas iyer':['s iyer','shreyas iyer','iyer'],
+  'shubman gill':['s gill','shubman gill','gill'],
+  'kl rahul':['kl rahul','k rahul','rahul'],
+  'axar patel':['a patel','axar patel','axar'],
+  'arshdeep singh':['a singh','arshdeep singh','arshdeep'],
+  'rohit sharma':['r sharma','rohit sharma','rohit'],
+  'naman dhir':['n dhir','naman dhir','dhir'],
+  'nuwan thushara':['n thushara','nuwan thushara','thushara'],
+  'sarfaraz khan':['sarfaraz','s khan','sarfaraz khan'],
+  'mohammed siraj':['m siraj','mohammed siraj','siraj'],
+  'jos butler':['j butler','jos buttler'],
+};
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let DB, stats={}, teamNames={}, renamingId=null;
+let lastSync=0;
+
+function calcRaw(p){
+  const s=stats[p.name]||{runs:0,wickets:0,catches:0};
+  return s.runs*100+s.wickets*2000+s.catches*250;
+}
+function calcPts(p){
+  const raw=calcRaw(p);
+  return p.slot==='C'?raw*2:p.slot==='VC'?raw*1.5:raw;
+}
+function teamTotal(team){ return team.players.reduce((s,p)=>s+calcPts(p),0); }
+function fmt(n){ return Math.round(n).toLocaleString(); }
+function medal(i){ return i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`; }
+function rankColor(i){ return i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#cd7f32':'#aaa'; }
+
+// ── NAME MATCHING ──────────────────────────────────────────────────────────
+function matchName(apiName){
+  const an=apiName.toLowerCase().trim();
+  // Check aliases
+  for(const [canonical,aliases] of Object.entries(ALIASES)){
+    if(aliases.some(a=>an===a||an.includes(a)||a.includes(an))) return canonical;
+  }
+  // Fuzzy: last name match
+  const parts=an.split(' ');
+  const last=parts[parts.length-1];
+  for(const [canonical] of Object.entries(ALIASES)){
+    if(canonical.endsWith(last)) return canonical;
+  }
+  return an;
+}
+
+function findStats(playerName){
+  const pn=playerName.toLowerCase();
+  // Direct lookup
+  if(stats[pn]) return stats[pn];
+  // Check aliases
+  const aliases=ALIASES[pn]||[];
+  for(const a of aliases){
+    if(stats[a]) return stats[a];
+  }
+  // Reverse: check if any stats key matches this player
+  for(const [key,val] of Object.entries(stats)){
+    const kn=matchName(key);
+    if(kn===pn) return val;
+    // try aliases of this player
+    if(aliases.some(a=>key===a||key.includes(a.split(' ').pop()))) return val;
+  }
+  return {runs:0,wickets:0,catches:0};
+}
+
+// ── FIREBASE BOOT ──────────────────────────────────────────────────────────
+async function boot(){
+  try{
+    const app=initializeApp({databaseURL:DB_URL},'ipl');
+    DB=getDatabase(app);
+    // Load cached stats and team names
+    onValue(ref(DB,'stats'),s=>{ stats=s.val()||{}; render(); });
+    onValue(ref(DB,'teamNames'),s=>{ teamNames=s.val()||{}; render(); });
+    document.getElementById('loading').style.display='none';
+    document.getElementById('app').style.display='block';
+    // Load last sync time but DON'T auto-sync — user must click Refresh
+    const metaSnap=await get(ref(DB,'lastSync'));
+    const ls=metaSnap.val()||0;
+    if(ls){ setStatus('green','Last synced: '+new Date(ls).toLocaleTimeString()+' · Click ↻ REFRESH to update'); }
+    else{ setStatus('yellow','Click ↻ REFRESH to load IPL 2026 stats'); }
+  }catch(e){ console.error(e); document.getElementById('syncStatus').textContent='Firebase error: '+e.message; }
+}
+
+// ── SYNC ──────────────────────────────────────────────────────────────────
+function setStatus(color,text){
+  ['syncDot'].forEach(id=>{ const el=document.getElementById(id); if(el)el.className='dot '+color; });
+  const s=document.getElementById('syncStatus'); if(s)s.textContent=text;
+}
+
+window.doSync=async function(force=true){
+  if(!force && Date.now()-lastSync < 5*60*1000) return;
+  setStatus('yellow','Fetching IPL 2026 match data…');
+  try{
+    const si=await fetch(`https://api.cricapi.com/v1/series_info?id=${IPL_2026_ID}&apikey=${API_KEY}`);
+    const sid=await si.json();
+    if(sid.status==='failure') throw new Error(sid.reason||'API limit reached — try again tomorrow');
+    const completed=(sid.data?.matchList||[]).filter(m=>m.matchEnded===true);
+    if(!completed.length){ setStatus('yellow','No completed IPL 2026 matches yet'); return; }
+
+    setStatus('yellow',`${completed.length} matches found · loading scorecards…`);
+    const aggRuns={}, aggWkts={}, aggCatch={};
+
+    for(let i=0;i<completed.length;i++){
+      const m=completed[i];
+      setStatus('yellow',`Scorecard ${i+1}/${completed.length}…`);
+      try{
+        await new Promise(r=>setTimeout(r,300));
+        const sr=await fetch(`https://api.cricapi.com/v1/match_scorecard?id=${m.id}&apikey=${API_KEY}`);
+        const sd=await sr.json();
+        if(sd.status==='failure') throw new Error(sd.reason);
+        for(const inn of (sd.data?.scorecard||[])){
+          for(const bat of (inn.batting||[])){
+            const n=(bat.batsman?.name||bat.name||'').toLowerCase(); if(!n) continue;
+            const mc=matchName(n);
+            aggRuns[mc]=(aggRuns[mc]||0)+(parseInt(bat.r)||0);
+            const dis=bat['dismissal-text']||bat.dismissal||'';
+            const cm=dis.match(/^c\s+(.+?)\s+b\s+/i);
+            if(cm){
+              const cat=matchName(cm[1].trim().toLowerCase());
+              aggCatch[cat]=(aggCatch[cat]||0)+1;
+            }
+          }
+          for(const bowl of (inn.bowling||[])){
+            const n=(bowl.bowler?.name||bowl.name||'').toLowerCase(); if(!n) continue;
+            const mc=matchName(n);
+            aggWkts[mc]=(aggWkts[mc]||0)+(parseInt(bowl.w)||0);
+          }
+        }
+      }catch(e){ console.warn('Scorecard error:',e.message); }
+    }
+
+    // Build stats object keyed by canonical name
+    const newStats={};
+    const allCanonical=[...new Set([...Object.keys(aggRuns),...Object.keys(aggWkts),...Object.keys(aggCatch)])];
+    for(const c of allCanonical){
+      newStats[c]={runs:aggRuns[c]||0,wickets:aggWkts[c]||0,catches:aggCatch[c]||0};
+    }
+
+    await set(ref(DB,'stats'),newStats);
+    await set(ref(DB,'lastSync'),Date.now());
+    lastSync=Date.now();
+    setStatus('green',`✅ Synced from ${completed.length} IPL 2026 matches · ${new Date().toLocaleTimeString()}`);
+  }catch(e){
+    console.error(e);
+    setStatus('red','❌ '+e.message);
+  }
+};
+
+// ── TABS ──────────────────────────────────────────────────────────────────
+window.switchTab=function(idx,btn){
+  document.getElementById('tab0').style.display=idx===0?'block':'none';
+  document.getElementById('tab1').style.display=idx===1?'block':'none';
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+};
+
+// ── RENAME ────────────────────────────────────────────────────────────────
+window.openRename=function(teamId){
+  renamingId=teamId;
+  const cur=teamNames[teamId]||TEAMS_DEF.find(t=>t.id===teamId)?.name||'';
+  document.getElementById('renameInput').value=cur;
+  document.getElementById('renameModal').style.display='flex';
+  setTimeout(()=>document.getElementById('renameInput').focus(),100);
+};
+window.closeRename=function(){ document.getElementById('renameModal').style.display='none'; renamingId=null; };
+window.confirmRename=function(){
+  if(!renamingId) return;
+  const val=document.getElementById('renameInput').value.trim();
+  if(!val) return;
+  update(ref(DB,'teamNames'),{[renamingId]:val});
+  closeRename();
+};
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function render(){
+  renderTeams();
+  renderPlayers();
+}
+
+function renderTeams(){
+  const el=document.getElementById('teamBoard');
+  const sorted=[...TEAMS_DEF].sort((a,b)=>teamTotal(b)-teamTotal(a));
+
+  el.innerHTML=sorted.map((t,i)=>{
+    const name=teamNames[t.id]||t.name;
+    const total=teamTotal(t);
+    const leader=sorted[0];
+    const border=i===0?'#f5a623':i===1?'#555':i===2?'#5a3a1a':'#2a2a3d';
+    const shadow=i===0?'box-shadow:0 0 24px #f5a62330':'';
+
+    const roster=t.players.map(p=>{
+      const s=findStats(p.name);
+      const pts=calcPts(p);
+      const slotBadge=p.slot==='C'?`<span class="badge" style="background:#FFD700;color:#000;margin-left:4px">C</span>`:
+                      p.slot==='VC'?`<span class="badge" style="background:#b0b0b0;color:#000;margin-left:4px">VC</span>`:'';
+      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #181828;flex-wrap:wrap">
+        <div style="flex:1;min-width:120px;font-weight:600;color:#f0ece4">${p.name}${slotBadge}<span style="font-size:12px;color:#555;margin-left:6px">${p.ipl}</span></div>
+        <div style="display:flex;gap:16px;font-size:13px;color:#888">
+          <span>🏏 <b style="color:#7ec8e3">${s.runs}</b></span>
+          <span>🎯 <b style="color:#ff7b7b">${s.wickets}</b></span>
+          <span>🤲 <b style="color:#7bff9e">${s.catches}</b></span>
+        </div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#f5a623;min-width:70px;text-align:right">${fmt(pts)}</div>
+      </div>`;
+    }).join('');
+
+    return `<div style="background:#111120;border:1px solid ${border};border-radius:12px;padding:20px;margin-bottom:14px;${shadow}">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:34px;color:${rankColor(i)};min-width:44px">${medal(i)}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:#f0ece4;letter-spacing:2px;line-height:1">${name}</div>
+            <button onclick="openRename('${t.id}')" style="background:#1e1e30;border:1px solid #333;color:#888;border-radius:5px;padding:3px 10px;font-size:12px">✏️ Rename</button>
+          </div>
+          <div style="font-size:13px;color:#666;margin-top:2px">👤 ${t.owner}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;color:#f5a623;line-height:1">${fmt(total)}</div>
+          <div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px">Fantasy Points</div>
+          ${i===0?'<div style="color:#f5a623;font-size:12px;font-weight:700;margin-top:2px">👑 LEADER</div>':''}
+          ${i>0?`<div style="color:#444;font-size:12px;margin-top:2px">-${fmt(teamTotal(leader)-total)} from 1st</div>`:''}
+        </div>
+      </div>
+      <div style="border-top:1px solid #1e1e30;padding-top:10px">${roster}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderPlayers(){
+  // Collect all players with their fantasy team
+  const allPlayers=[];
+  TEAMS_DEF.forEach(t=>{
+    const tname=teamNames[t.id]||t.name;
+    t.players.forEach(p=>{
+      const s=findStats(p.name);
+      const raw=s.runs*100+s.wickets*2000+s.catches*250;
+      allPlayers.push({...p,...s,raw,fantasyTeam:tname,owner:t.owner});
+    });
+  });
+  allPlayers.sort((a,b)=>b.raw-a.raw);
+
+  const rc=i=>i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#cd7f32':'#555';
+  document.getElementById('playerBoard').innerHTML=allPlayers.length===0
+    ?`<tr><td colspan="8" style="text-align:center;padding:40px;color:#444">Loading…</td></tr>`
+    :allPlayers.map((p,i)=>`<tr>
+      <td style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${rc(i)}">${medal(i)}</td>
+      <td style="font-weight:700;color:#f0ece4">${p.name}${p.slot==='C'?` <span class="badge" style="background:#FFD700;color:#000">C</span>`:p.slot==='VC'?` <span class="badge" style="background:#b0b0b0;color:#000">VC</span>`:''}</td>
+      <td style="font-size:13px;color:#888">${p.fantasyTeam}</td>
+      <td><span class="badge" style="background:#1a1a2e;color:#aaa">${p.ipl}</span></td>
+      <td style="color:#7ec8e3;font-weight:700">${p.runs}</td>
+      <td style="color:#ff7b7b;font-weight:700">${p.wickets}</td>
+      <td style="color:#7bff9e;font-weight:700">${p.catches}</td>
+      <td style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:#f5a623">${fmt(p.raw)}</td>
+    </tr>`).join('');
+}
+
+boot();
+</script>
+</body>
+</html>
