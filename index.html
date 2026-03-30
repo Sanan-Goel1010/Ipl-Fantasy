@@ -226,6 +226,9 @@ function findStats(playerName, iplTeam){
   return stats[key] || {runs:0, wickets:0, catches:0};
 }
 
+// ── STATE ──────────────────────────────────────────────────────────────────
+let DB, stats={}, teamNames={}, renamingId=null, lastSync=0;
+
 // ── FIREBASE BOOT ──────────────────────────────────────────────────────────
 async function boot(){
   try{
