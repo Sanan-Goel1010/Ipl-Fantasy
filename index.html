@@ -269,7 +269,7 @@ let DB, stats={}, teamNames={}, renamingId=null;
 let lastSync=0;
 
 function calcRaw(p){
-  const s=findStats(p.name);
+  const s=findStats(p.name, p.ipl);
   return s.runs*100+s.wickets*2000+s.catches*250;
 }
 function calcPts(p){
@@ -297,44 +297,28 @@ function matchName(apiName){
   return an;
 }
 
-function findStats(playerName){
+function findStats(playerName, iplTeam){
   const pn=playerName.toLowerCase().trim();
-  const pLast=pn.split(' ').pop();
-  
-  // 1. Direct exact match
-  if(stats[pn]) return stats[pn];
-  
-  // 2. Check all aliases for this player
+  const team=iplTeam.toLowerCase();
   const aliases=ALIASES[pn]||[];
-  for(const a of aliases){
-    if(stats[a]) return stats[a];
+  const allNames=[pn,...aliases];
+
+  // Try each name variant, confirm with team stored in Firebase
+  for(const name of allNames){
+    if(stats[name]) return stats[name];
   }
-  
-  // 3. Search all stats keys for a match
+
+  // Search all stats keys — match full name similarity + team
   for(const [key,val] of Object.entries(stats)){
     const kn=key.toLowerCase().trim();
-    const kLast=kn.split(' ').pop();
-    
-    // Exact match
-    if(kn===pn) return val;
-    
-    // Last name match + first initial
-    if(kLast===pLast && pn[0]===kn[0]) return val;
-    
-    // Last name match alone (for common names be careful)
-    if(kLast===pLast && pLast.length>4) return val;
-    
-    // One contains the other
-    if(kn.includes(pn)||pn.includes(kn)) return val;
-    
-    // Check if key matches any alias of this player
-    if(aliases.some(a=>a.toLowerCase()===kn)) return val;
-    
-    // Check reverse: is this player's name an alias of the key?
-    const keyAliases=ALIASES[kn]||[];
-    if(keyAliases.some(a=>a.toLowerCase()===pn||a.toLowerCase()===pLast)) return val;
+    // Must match both name AND team
+    const nameMatch=allNames.some(n=>kn===n||kn.includes(n)||n.includes(kn));
+    const teamMatch=val.team&&val.team.toLowerCase()===team;
+    if(nameMatch&&teamMatch) return val;
+    // Name match without team (fallback for good name matches only)
+    if(kn===pn) return val; // exact full name = always trust
   }
-  
+
   return {runs:0,wickets:0,catches:0};
 }
 
@@ -490,7 +474,7 @@ function renderTeams(){
     const shadow=i===0?'box-shadow:0 0 24px #f5a62330':'';
 
     const roster=t.players.map(p=>{
-      const s=findStats(p.name);
+      const s=findStats(p.name, p.ipl);
       const pts=calcPts(p);
       const slotBadge=p.slot==='C'?`<span class="badge" style="background:#FFD700;color:#000;margin-left:4px">C</span>`:
                       p.slot==='VC'?`<span class="badge" style="background:#b0b0b0;color:#000;margin-left:4px">VC</span>`:'';
@@ -533,7 +517,7 @@ function renderPlayers(){
   TEAMS_DEF.forEach(t=>{
     const tname=teamNames[t.id]||t.name;
     t.players.forEach(p=>{
-      const s=findStats(p.name);
+      const s=findStats(p.name, p.ipl);
       const raw=s.runs*100+s.wickets*2000+s.catches*250;
       allPlayers.push({...p,...s,raw,fantasyTeam:tname,owner:t.owner});
     });
