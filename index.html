@@ -119,213 +119,111 @@ const IPL_2026_ID = '87c62aac-bc3c-4738-ab93-19da0690488f';
 // slot: C=captain(2x), VC=vice(1.5x), N=normal
 const TEAMS_DEF = [
   { id:'sanan', name:"Sanan's XI", owner:'Sanan', players:[
-    {name:'Phil Salt',          ipl:'RCB', slot:'N'},
-    {name:'Virat Kohli',        ipl:'RCB', slot:'C'},
-    {name:'Rajat Patidar',      ipl:'RCB', slot:'N'},
-    {name:'Shivam Dube',        ipl:'CSK', slot:'N'},
-    {name:'Sunil Narine',       ipl:'KKR', slot:'VC'},
-    {name:'Andre Russell',      ipl:'KKR', slot:'N'},
-    {name:'Sam Curran',         ipl:'RR',  slot:'N'},
-    {name:'Krunal Pandya',      ipl:'RCB', slot:'N'},
-    {name:'Rashid Khan',        ipl:'GT',  slot:'N'},
-    {name:'Varun Chakaravarthy',ipl:'KKR', slot:'N'},
-    {name:'Matheesha Pathirana',ipl:'KKR', slot:'N'},
+    {name:'phil salt',          ipl:'RCB', slot:'N'},
+    {name:'virat kohli',        ipl:'RCB', slot:'C'},
+    {name:'rajat patidar',      ipl:'RCB', slot:'N'},
+    {name:'shivam dube',        ipl:'CSK', slot:'N'},
+    {name:'sunil narine',       ipl:'KKR', slot:'VC'},
+    {name:'andre russell',      ipl:'KKR', slot:'N'},
+    {name:'sam curran',         ipl:'RR',  slot:'N'},
+    {name:'krunal pandya',      ipl:'RCB', slot:'N'},
+    {name:'rashid khan',        ipl:'GT',  slot:'N'},
+    {name:'varun chakaravarthy',ipl:'KKR', slot:'N'},
+    {name:'matheesha pathirana',ipl:'KKR', slot:'N'},
   ]},
   { id:'kabir', name:"Kabir XI", owner:'Kabir', players:[
-    {name:'Travis Head',     ipl:'SRH', slot:'VC'},
-    {name:'Quinton de Kock', ipl:'MI',  slot:'N'},
-    {name:'Rishabh Pant',    ipl:'LSG', slot:'N'},
-    {name:'Tilak Varma',     ipl:'MI',  slot:'N'},
-    {name:'Rinku Singh',     ipl:'KKR', slot:'N'},
-    {name:'Cameron Green',   ipl:'KKR', slot:'N'},
-    {name:'Marco Jansen',    ipl:'PBKS',slot:'N'},
-    {name:'Lungi Ngidi',     ipl:'DC',  slot:'N'},
-    {name:'Noor Ahmad',      ipl:'CSK', slot:'N'},
-    {name:'Kuldeep Yadav',   ipl:'DC',  slot:'N'},
-    {name:'Jasprit Bumrah',  ipl:'MI',  slot:'C'},
+    {name:'travis head',     ipl:'SRH', slot:'VC'},
+    {name:'quinton de kock', ipl:'MI',  slot:'N'},
+    {name:'rishabh pant',    ipl:'LSG', slot:'N'},
+    {name:'tilak varma',     ipl:'MI',  slot:'N'},
+    {name:'rinku singh',     ipl:'KKR', slot:'N'},
+    {name:'cameron green',   ipl:'KKR', slot:'N'},
+    {name:'marco jansen',    ipl:'PBKS',slot:'N'},
+    {name:'lungi ngidi',     ipl:'DC',  slot:'N'},
+    {name:'noor ahmad',      ipl:'CSK', slot:'N'},
+    {name:'kuldeep yadav',   ipl:'DC',  slot:'N'},
+    {name:'jasprit bumrah',  ipl:'MI',  slot:'C'},
   ]},
   { id:'rishobh', name:"Rishobh XI", owner:'Rishobh', players:[
-    {name:'Suryakumar Yadav',   ipl:'MI',  slot:'VC'},
-    {name:'Sai Sudarshan',      ipl:'GT',  slot:'C'},
-    {name:'Heinrich Klaasen',   ipl:'SRH', slot:'N'},
-    {name:'Ishan Kishan',       ipl:'SRH', slot:'N'},
-    {name:'Vaibhav Suryavanshi',ipl:'RR',  slot:'N'},
-    {name:'Jofra Archer',       ipl:'RR',  slot:'N'},
-    {name:'Will Jacks',         ipl:'MI',  slot:'N'},
-    {name:'Prasidh Krishna',    ipl:'GT',  slot:'N'},
-    {name:'Naman Dhir',         ipl:'MI',  slot:'N'},
-    {name:'Nuwan Thushara',     ipl:'RCB', slot:'N'},
-    {name:'Sarfaraz Khan',      ipl:'CSK', slot:'N'},
+    {name:'suryakumar yadav',   ipl:'MI',  slot:'VC'},
+    {name:'sai sudarshan',      ipl:'GT',  slot:'C'},
+    {name:'heinrich klaasen',   ipl:'SRH', slot:'N'},
+    {name:'ishan kishan',       ipl:'SRH', slot:'N'},
+    {name:'vaibhav suryavanshi',ipl:'RR',  slot:'N'},
+    {name:'jofra archer',       ipl:'RR',  slot:'N'},
+    {name:'will jacks',         ipl:'MI',  slot:'N'},
+    {name:'prasidh krishna',    ipl:'GT',  slot:'N'},
+    {name:'naman dhir',         ipl:'MI',  slot:'N'},
+    {name:'nuwan thushara',     ipl:'RCB', slot:'N'},
+    {name:'sarfaraz khan',      ipl:'CSK', slot:'N'},
   ]},
   { id:'kartik', name:"Kartik XI", owner:'Kartik', players:[
-    {name:'Abhishek Sharma', ipl:'SRH', slot:'C'},
-    {name:'Shreyas Iyer',    ipl:'PBKS',slot:'VC'},
-    {name:'Sanju Samson',    ipl:'CSK', slot:'N'},
-    {name:'Mitchell Marsh',  ipl:'LSG', slot:'N'},
-    {name:'Pat Cummins',     ipl:'SRH', slot:'N'},
-    {name:'Jos Buttler',     ipl:'GT',  slot:'N'},
-    {name:'Yuzvendra Chahal',ipl:'PBKS',slot:'N'},
-    {name:'Finn Allen',      ipl:'KKR', slot:'N'},
-    {name:'Rachin Ravindra', ipl:'KKR', slot:'N'},
-    {name:'Liam Livingstone',ipl:'SRH', slot:'N'},
-    {name:'MS Dhoni',        ipl:'CSK', slot:'N'},
+    {name:'abhishek sharma', ipl:'SRH', slot:'C'},
+    {name:'shreyas iyer',    ipl:'PBKS',slot:'VC'},
+    {name:'sanju samson',    ipl:'CSK', slot:'N'},
+    {name:'mitchell marsh',  ipl:'LSG', slot:'N'},
+    {name:'pat cummins',     ipl:'SRH', slot:'N'},
+    {name:'jos buttler',     ipl:'GT',  slot:'N'},
+    {name:'yuzvendra chahal',ipl:'PBKS',slot:'N'},
+    {name:'finn allen',      ipl:'KKR', slot:'N'},
+    {name:'rachin ravindra', ipl:'KKR', slot:'N'},
+    {name:'liam livingstone',ipl:'SRH', slot:'N'},
+    {name:'ms dhoni',        ipl:'CSK', slot:'N'},
   ]},
   { id:'ashmit', name:"Ashmit's XI", owner:'Ashmit', players:[
-    {name:'Shubman Gill',    ipl:'GT',  slot:'N'},
-    {name:'KL Rahul',        ipl:'DC',  slot:'VC'},
-    {name:'Ruturaj Gaikwad', ipl:'CSK', slot:'N'},
-    {name:'Aiden Markram',   ipl:'LSG', slot:'N'},
-    {name:'Axar Patel',      ipl:'DC',  slot:'C'},
-    {name:'Marcus Stoinis',  ipl:'PBKS',slot:'N'},
-    {name:'Ravindra Jadeja', ipl:'RR',  slot:'N'},
-    {name:'Arshdeep Singh',  ipl:'PBKS',slot:'N'},
-    {name:'Khaleel Ahmed',   ipl:'CSK', slot:'N'},
-    {name:'Mukesh Kumar',    ipl:'DC',  slot:'N'},
-    {name:'Mohammed Shami',  ipl:'LSG', slot:'N'},
+    {name:'shubman gill',    ipl:'GT',  slot:'N'},
+    {name:'kl rahul',        ipl:'DC',  slot:'VC'},
+    {name:'ruturaj gaikwad', ipl:'CSK', slot:'N'},
+    {name:'aiden markram',   ipl:'LSG', slot:'N'},
+    {name:'axar patel',      ipl:'DC',  slot:'C'},
+    {name:'marcus stoinis',  ipl:'PBKS',slot:'N'},
+    {name:'ravindra jadeja', ipl:'RR',  slot:'N'},
+    {name:'arshdeep singh',  ipl:'PBKS',slot:'N'},
+    {name:'khaleel ahmed',   ipl:'CSK', slot:'N'},
+    {name:'mukesh kumar',    ipl:'DC',  slot:'N'},
+    {name:'mohammed shami',  ipl:'LSG', slot:'N'},
   ]},
   { id:'jaiveer', name:"Jaiveer XI", owner:'Jaiveer', players:[
-    {name:'Rohit Sharma',      ipl:'MI',  slot:'N'},
-    {name:'Yashasvi Jaiswal',  ipl:'RR',  slot:'N'},
-    {name:'Nicholas Pooran',   ipl:'LSG', slot:'VC'},
-    {name:'Dewald Brevis',     ipl:'CSK', slot:'N'},
-    {name:'Hardik Pandya',     ipl:'MI',  slot:'C'},
-    {name:'Nitish Kumar Reddy',ipl:'SRH', slot:'N'},
-    {name:'Shardul Thakur',    ipl:'MI',  slot:'N'},
-    {name:'Bhuvneshwar Kumar', ipl:'RCB', slot:'N'},
-    {name:'Mohammed Siraj',    ipl:'GT',  slot:'N'},
-    {name:'Trent Boult',       ipl:'MI',  slot:'N'},
-    {name:'Josh Hazlewood',    ipl:'RCB', slot:'N'},
+    {name:'rohit sharma',      ipl:'MI',  slot:'N'},
+    {name:'yashasvi jaiswal',  ipl:'RR',  slot:'N'},
+    {name:'nicholas pooran',   ipl:'LSG', slot:'VC'},
+    {name:'dewald brevis',     ipl:'CSK', slot:'N'},
+    {name:'hardik pandya',     ipl:'MI',  slot:'C'},
+    {name:'nitish kumar reddy',ipl:'SRH', slot:'N'},
+    {name:'shardul thakur',    ipl:'MI',  slot:'N'},
+    {name:'bhuvneshwar kumar', ipl:'RCB', slot:'N'},
+    {name:'mohammed siraj',    ipl:'GT',  slot:'N'},
+    {name:'trent boult',       ipl:'MI',  slot:'N'},
+    {name:'josh hazlewood',    ipl:'RCB', slot:'N'},
   ]},
 ];
 
-// Name aliases for API matching
-const ALIASES = {
-  'suryakumar yadav':['sk yadav','suryakumar yadav','sky','surya kumar yadav'],
-  'quinton de kock':['q de kock','de kock','quinton de kock'],
-  'heinrich klaasen':['klaasen','h klaasen','heinrich klaasen','klassen'],
-  'ishan kishan':['i kishan','ishan kishan'],
-  'vaibhav suryavanshi':['suryavanshi','v suryavanshi','vaibhav suryavanshi','sooryavanshi'],
-  'jofra archer':['j archer','archer','jofra archer'],
-  'will jacks':['w jacks','will jacks'],
-  'prasidh krishna':['p krishna','prasidh krishna','krishna'],
-  'yuzvendra chahal':['yuzi chahal','y chahal','yuzvendra chahal','chahal'],
-  'ms dhoni':['ms dhoni','dhoni','m dhoni'],
-  'ruturaj gaikwad':['r gaikwad','ruturaj gaikwad','rutu gaikwad'],
-  'ravindra jadeja':['r jadeja','ravindra jadeja','jadeja'],
-  'mohammed shami':['m shami','mohammed shami','md shami','shami'],
-  'yashasvi jaiswal':['y jaiswal','yashasvi jaiswal','jaiswal'],
-  'nitish kumar reddy':['nitish reddy','n reddy','nitish kumar reddy'],
-  'bhuvneshwar kumar':['b kumar','bhuvneshwar kumar','bhuvi'],
-  'noor ahmad':['noor ahmed','n ahmad','noor ahmad'],
-  'varun chakaravarthy':['varun chakravarthy','v chakaravarthy','varun chakaravarthy','chakaravarthy'],
-  'matheesha pathirana':['m pathirana','pathirana','matheesha pathirana'],
-  'tilak varma':['t varma','tilak varma','tilak verma'],
-  'mitchell marsh':['m marsh','mitchell marsh','marsh'],
-  'pat cummins':['p cummins','pat cummins','cummins'],
-  'jos buttler':['j buttler','jos buttler','buttler'],
-  'finn allen':['f allen','finn allen','allen'],
-  'rachin ravindra':['r ravindra','rachin ravindra','ravindra'],
-  'liam livingstone':['l livingstone','liam livingstone','livingstone'],
-  'aiden markram':['a markram','aiden markram','markram'],
-  'marcus stoinis':['m stoinis','marcus stoinis','stoinis'],
-  'khaleel ahmed':['k ahmed','khaleel ahmed'],
-  'mukesh kumar':['m kumar','mukesh kumar'],
-  'nicholas pooran':['n pooran','nicholas pooran','pooran'],
-  'dewald brevis':['d brevis','dewald brevis','brevis'],
-  'hardik pandya':['h pandya','hardik pandya','pandya'],
-  'shardul thakur':['s thakur','shardul thakur','thakur'],
-  'bhuvneshwar kumar':['bhuvaneshwar kumar','b kumar'],
-  'trent boult':['t boult','trent boult','boult'],
-  'josh hazlewood':['j hazlewood','josh hazlewood','hazlewood'],
-  'sanju samson':['s samson','sanju samson','samson'],
-  'phil salt':['p salt','phil salt','salt'],
-  'virat kohli':['v kohli','virat kohli','kohli'],
-  'rajat patidar':['r patidar','rajat patidar','patidar'],
-  'shivam dube':['s dube','shivam dube','dube'],
-  'sunil narine':['s narine','sunil narine','narine'],
-  'andre russell':['a russell','andre russell','russell'],
-  'sam curran':['s curran','sam curran','curran'],
-  'krunal pandya':['k pandya','krunal pandya'],
-  'rashid khan':['rashid','r khan','rashid khan'],
-  'travis head':['t head','travis head','head'],
-  'rishabh pant':['r pant','rishabh pant','pant'],
-  'rinku singh':['r singh','rinku singh','rinku'],
-  'cameron green':['c green','cameron green','green'],
-  'marco jansen':['m jansen','marco jansen','jansen'],
-  'lungi ngidi':['l ngidi','lungi ngidi','ngidi'],
-  'kuldeep yadav':['k yadav','kuldeep yadav','kuldeep'],
-  'jasprit bumrah':['j bumrah','jasprit bumrah','bumrah'],
-  'sai sudarshan':['s sudarshan','sai sudarshan','sudarshan'],
-  'abhishek sharma':['a sharma','abhishek sharma'],
-  'shreyas iyer':['s iyer','shreyas iyer','iyer'],
-  'shubman gill':['s gill','shubman gill','gill'],
-  'kl rahul':['kl rahul','k rahul','rahul'],
-  'axar patel':['a patel','axar patel','axar'],
-  'arshdeep singh':['a singh','arshdeep singh','arshdeep'],
-  'rohit sharma':['r sharma','rohit sharma','rohit'],
-  'naman dhir':['n dhir','naman dhir','dhir'],
-  'nuwan thushara':['n thushara','nuwan thushara','thushara'],
-  'sarfaraz khan':['sarfaraz','s khan','sarfaraz khan'],
-  'mohammed siraj':['m siraj','mohammed siraj','siraj'],
-  'jos butler':['j butler','jos buttler'],
+// Simple direct name lookup - names match API exactly
+const NAME_MAP = {
+  // Players whose display name differs from API name
+  'suryakumar yadav': 'suryakumar yadav',
+  'vaibhav suryavanshi': 'vaibhav suryavanshi',
+  'mohammed shami': 'mohammed shami',
+  'ms dhoni': 'ms dhoni',
+  'kl rahul': 'kl rahul',
+  'ravindra jadeja': 'ravindra jadeja',
+  'yuzvendra chahal': 'yuzvendra chahal',
+  'ruturaj gaikwad': 'ruturaj gaikwad',
+  'prasidh krishna': 'prasidh krishna',
+  'nuwan thushara': 'nuwan thushara',
+  'varun chakaravarthy': 'varun chakaravarthy',
+  'matheesha pathirana': 'matheesha pathirana',
+  'jofra archer': 'jofra archer',
+  'rashid khan': 'rashid khan',
+  'bhuvneshwar kumar': 'bhuvneshwar kumar',
+  'mohammed siraj': 'mohammed siraj',
+  'nitish kumar reddy': 'nitish kumar reddy',
+  'josh hazlewood': 'josh hazlewood',
 };
 
-// ── STATE ──────────────────────────────────────────────────────────────────
-let DB, stats={}, teamNames={}, renamingId=null;
-let lastSync=0;
-
-function calcRaw(p){
-  const s=findStats(p.name, p.ipl);
-  return s.runs*100+s.wickets*2000+s.catches*250;
-}
-function calcPts(p){
-  const raw=calcRaw(p);
-  return p.slot==='C'?raw*2:p.slot==='VC'?raw*1.5:raw;
-}
-function teamTotal(team){ return team.players.reduce((s,p)=>s+calcPts(p),0); }
-function fmt(n){ return Math.round(n).toLocaleString(); }
-function medal(i){ return i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`; }
-function rankColor(i){ return i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#cd7f32':'#aaa'; }
-
-// ── NAME MATCHING ──────────────────────────────────────────────────────────
-function matchName(apiName){
-  const an=apiName.toLowerCase().trim();
-  // Check aliases
-  for(const [canonical,aliases] of Object.entries(ALIASES)){
-    if(aliases.some(a=>an===a||an.includes(a)||a.includes(an))) return canonical;
-  }
-  // Fuzzy: last name match
-  const parts=an.split(' ');
-  const last=parts[parts.length-1];
-  for(const [canonical] of Object.entries(ALIASES)){
-    if(canonical.endsWith(last)) return canonical;
-  }
-  return an;
-}
-
 function findStats(playerName, iplTeam){
-  const pn=playerName.toLowerCase().trim();
-  const team=iplTeam.toLowerCase();
-  const aliases=ALIASES[pn]||[];
-  const allNames=[pn,...aliases];
-
-  // Try each name variant, confirm with team stored in Firebase
-  for(const name of allNames){
-    if(stats[name]) return stats[name];
-  }
-
-  // Search all stats keys — match full name similarity + team
-  for(const [key,val] of Object.entries(stats)){
-    const kn=key.toLowerCase().trim();
-    // Must match both name AND team
-    const nameMatch=allNames.some(n=>kn===n||kn.includes(n)||n.includes(kn));
-    const teamMatch=val.team&&val.team.toLowerCase()===team;
-    if(nameMatch&&teamMatch) return val;
-    // Name match without team (fallback for good name matches only)
-    if(kn===pn) return val; // exact full name = always trust
-  }
-
-  return {runs:0,wickets:0,catches:0};
+  const key = (NAME_MAP[playerName.toLowerCase()] || playerName.toLowerCase()).trim();
+  return stats[key] || {runs:0, wickets:0, catches:0};
 }
 
 // ── FIREBASE BOOT ──────────────────────────────────────────────────────────
@@ -377,7 +275,7 @@ window.doSync=async function(force=true){
 
     // Step 4: Load existing cached stats from Firebase
     const existingSnap=await get(ref(DB,'stats'));
-    const aggRuns={}, aggWkts={}, aggCatch={};
+    const aggRuns={}, aggWkts={}, aggCatch={}, aggTeam={};
     // Seed from existing cache
     const existing=existingSnap.val()||{};
     for(const [k,v] of Object.entries(existing)){
@@ -397,21 +295,25 @@ window.doSync=async function(force=true){
         const sd=await sr.json();
         if(sd.status==='failure') throw new Error(sd.reason);
         for(const inn of (sd.data?.scorecard||[])){
+          // Get batting team short name from innings
+          const batTeam=(inn.batTeamDetails?.batTeamShortName||inn.batTeamName||'').toUpperCase();
           for(const bat of (inn.batting||[])){
             const n=(bat.batsman?.name||bat.name||'').toLowerCase(); if(!n) continue;
-            const mc=matchName(n);
-            aggRuns[mc]=(aggRuns[mc]||0)+(parseInt(bat.r)||0);
+            aggRuns[n]=(aggRuns[n]||0)+(parseInt(bat.r)||0);
+            if(batTeam) aggTeam[n]=batTeam;
             const dis=bat['dismissal-text']||bat.dismissal||'';
             const cm=dis.match(/^c\s+(.+?)\s+b\s+/i);
             if(cm){
-              const cat=matchName(cm[1].trim().toLowerCase());
+              const cat=cm[1].trim().toLowerCase();
               aggCatch[cat]=(aggCatch[cat]||0)+1;
             }
           }
+          // Get bowling team
+          const bowlTeam=(inn.bowlTeamDetails?.bowlTeamShortName||inn.bowlTeamName||'').toUpperCase();
           for(const bowl of (inn.bowling||[])){
             const n=(bowl.bowler?.name||bowl.name||'').toLowerCase(); if(!n) continue;
-            const mc=matchName(n);
-            aggWkts[mc]=(aggWkts[mc]||0)+(parseInt(bowl.w)||0);
+            aggWkts[n]=(aggWkts[n]||0)+(parseInt(bowl.w)||0);
+            if(bowlTeam) aggTeam[n]=bowlTeam;
           }
         }
         // Mark this match as processed
@@ -423,7 +325,7 @@ window.doSync=async function(force=true){
     const mergedStats={};
     const allKeys=[...new Set([...Object.keys(aggRuns),...Object.keys(aggWkts),...Object.keys(aggCatch)])];
     for(const c of allKeys){
-      mergedStats[c]={runs:aggRuns[c]||0,wickets:aggWkts[c]||0,catches:aggCatch[c]||0};
+      mergedStats[c]={runs:aggRuns[c]||0,wickets:aggWkts[c]||0,catches:aggCatch[c]||0,team:aggTeam[c]||''};
     }
 
     await set(ref(DB,'stats'),mergedStats);
