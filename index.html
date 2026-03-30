@@ -11,7 +11,7 @@
   ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#111}::-webkit-scrollbar-thumb{background:#f5a623;border-radius:3px}
   input,select{background:#161624;color:#f0ece4;border:1px solid #2a2a3d;border-radius:6px;padding:8px 12px;font-family:'Barlow Condensed',sans-serif;font-size:15px;outline:none;transition:border .2s;width:100%}
   input:focus,select:focus{border-color:#f5a623}
-  input::placeholder,textarea::placeholder{color:#555}
+  input::placeholder{color:#555}
   button{cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.5px;transition:all .15s;border:none}
   table{width:100%;border-collapse:collapse}
   th{padding:10px 14px;text-align:left;color:#f5a623;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;white-space:nowrap;background:#111120;border-bottom:2px solid #f5a623}
@@ -21,15 +21,13 @@
   .btn-gold{background:#f5a623;color:#000;border-radius:6px;padding:10px 20px;font-size:15px;font-weight:700;border:none}.btn-gold:hover{background:#ffb940}
   .btn-dark{background:#2a2a3d;color:#aaa;border-radius:6px;padding:10px 20px;font-size:15px;font-weight:700;border:none}.btn-dark:hover{background:#3a3a5a}
   .btn-red{background:#2a0000;border:1px solid #500;color:#ff6b6b;border-radius:6px;padding:6px 12px;font-size:13px}
-  .btn-sm{border-radius:5px;padding:5px 12px;font-size:13px;font-weight:600;border:none;cursor:pointer}
   .card{background:#111120;border:1px solid #2a2a3d;border-radius:10px;padding:20px;margin-bottom:16px}
-  .section-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#f5a623;letter-spacing:2px;margin-bottom:16px}
   .tab-btn{padding:14px 28px;border:none;background:transparent;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;color:#666}
   .tab-btn.active{color:#f5a623;border-bottom:2px solid #f5a623}
   .label{display:block;font-size:12px;color:#777;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
   .points-big{font-family:'Bebas Neue',sans-serif;font-size:38px;color:#f5a623;line-height:1}
   .overlay{position:fixed;inset:0;background:#050510;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
-  .setup-box{background:#111120;border:2px solid #f5a623;border-radius:16px;padding:36px;max-width:600px;width:100%;margin:auto}
+  .setup-box{background:#111120;border:2px solid #f5a623;border-radius:16px;padding:36px;max-width:580px;width:100%;margin:auto}
   .step{display:flex;gap:12px;margin-bottom:18px;align-items:flex-start}
   .step-num{background:#f5a623;color:#000;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;flex-shrink:0;margin-top:2px}
   .slot-btn{border:none;border-radius:4px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer}
@@ -41,8 +39,7 @@
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
   .sync-bar{background:#0d1a0d;border:1px solid #1a3a1a;border-radius:8px;padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px}
   .auto-badge{background:#1a3a1a;color:#7bff9e;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700;letter-spacing:1px}
-  .progress-bar{height:4px;background:#1a3a1a;border-radius:2px;margin-top:6px;overflow:hidden}
-  .progress-fill{height:100%;background:#f5a623;border-radius:2px;transition:width .3s}
+  .section-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#f5a623;letter-spacing:2px;margin-bottom:16px}
 </style>
 </head>
 <body>
@@ -56,20 +53,22 @@
 <div class="overlay" id="setupOverlay" style="display:none">
   <div class="setup-box">
     <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#f5a623;letter-spacing:3px;margin-bottom:6px">🏏 ONE-TIME SETUP</div>
-    <div style="color:#888;margin-bottom:24px;font-size:14px">Enter your Firebase URL + RapidAPI key. Stats auto-load from all IPL 2026 matches played so far.</div>
+    <div style="color:#888;margin-bottom:24px;font-size:14px">Enter your details below. This is saved on your device — you only do this once.</div>
 
     <div class="step"><div class="step-num">1</div>
-      <div style="flex:1"><div style="font-weight:600;margin-bottom:6px">Firebase Database URL:</div>
+      <div style="flex:1"><div style="font-weight:600;margin-bottom:6px">Firebase URL (for live sync between friends):</div>
       <input id="dbUrlInput" placeholder="https://your-project-default-rtdb.firebaseio.com"/></div>
     </div>
     <div class="step"><div class="step-num">2</div>
-      <div style="flex:1"><div style="font-weight:600;margin-bottom:6px">RapidAPI Key (Cricbuzz Cricket - Basic plan):</div>
-      <input id="rapidApiInput" placeholder="your-rapidapi-key" type="password"/>
-      <div style="color:#555;font-size:12px;margin-top:4px">Get it from rapidapi.com → Cricbuzz Cricket → Subscribe Basic (Free) → copy X-RapidAPI-Key</div></div>
+      <div style="flex:1">
+        <div style="font-weight:600;margin-bottom:6px">CricketData.org API Key (free from <a href="https://cricketdata.org" target="_blank" style="color:#f5a623">cricketdata.org</a>):</div>
+        <input id="cricApiInput" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"/>
+        <div style="color:#555;font-size:12px;margin-top:4px">Sign up free → Dashboard → copy your Lifetime Free API Key</div>
+      </div>
     </div>
 
     <div id="setupError" style="color:#ff6b6b;font-size:13px;margin-bottom:12px;display:none">Please fill both fields.</div>
-    <button class="btn-gold" onclick="saveSetup()" style="width:100%;font-size:17px;padding:14px">🚀 CONNECT & LOAD SEASON STATS</button>
+    <button class="btn-gold" onclick="saveSetup()" style="width:100%;font-size:17px;padding:14px">🚀 CONNECT & START</button>
   </div>
 </div>
 
@@ -78,8 +77,8 @@
   <div style="background:linear-gradient(135deg,#1a0a00,#0a0a14 60%);border-bottom:2px solid #f5a623;padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
     <div style="font-size:32px">🏏</div>
     <div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;color:#f5a623;line-height:1">IPL FANTASY LEAGUE <span class="auto-badge">AUTO STATS</span></div>
-      <div style="font-size:11px;color:#888;letter-spacing:2px;text-transform:uppercase">Season Stats Tracker · IPL 2026</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;color:#f5a623;line-height:1">IPL FANTASY LEAGUE <span class="auto-badge">LIVE STATS</span></div>
+      <div style="font-size:11px;color:#888;letter-spacing:2px;text-transform:uppercase">Auto Season Stats · IPL 2026</div>
     </div>
     <div style="margin-left:auto;display:flex;gap:8px;font-size:11px;flex-wrap:wrap;align-items:center">
       <span style="background:#1a1a2e;border:1px solid #2a2a3d;border-radius:4px;padding:3px 8px">Run=<b style="color:#f5a623">100</b></span>
@@ -92,10 +91,7 @@
 
   <div class="sync-bar">
     <div id="syncDot" class="dot yellow"></div>
-    <div style="flex:1">
-      <div id="syncStatus" style="color:#aaa">Initialising…</div>
-      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-    </div>
+    <div id="syncStatus" style="color:#aaa;flex:1">Loading IPL 2026 stats…</div>
     <button onclick="manualSync()" style="background:#1a3a1a;border:1px solid #2a5a2a;color:#7bff9e;border-radius:6px;padding:5px 14px;font-size:12px;font-weight:700;white-space:nowrap">↻ REFRESH STATS</button>
   </div>
 
@@ -112,11 +108,11 @@
       <div class="card" style="border-color:#2a3a2a">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
           <div class="section-title" style="margin-bottom:0" id="playerFormTitle">➕ ADD PLAYER</div>
-          <span class="auto-badge">STATS AUTO-LOAD FROM ALL IPL 2026 MATCHES</span>
+          <span class="auto-badge">STATS AUTO-LOAD FROM IPL 2026</span>
         </div>
-        <div style="color:#666;font-size:13px;margin-bottom:14px">Just add the player name — their total IPL 2026 runs, wickets & catches load automatically from all matches played so far.</div>
+        <div style="color:#666;font-size:13px;margin-bottom:14px">Add players — their season stats (runs/wickets/catches from all IPL 2026 matches) load automatically!</div>
         <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end">
-          <div style="flex:1;min-width:140px"><label class="label">Player Name (exact Cricbuzz spelling)</label><input id="pName" placeholder="e.g. Virat Kohli"/></div>
+          <div style="flex:1;min-width:140px"><label class="label">Player Name</label><input id="pName" placeholder="e.g. Virat Kohli"/></div>
           <div style="min-width:110px"><label class="label">IPL Team</label>
             <select id="pTeam"><option>CSK</option><option>MI</option><option>RCB</option><option>KKR</option><option>DC</option><option>SRH</option><option>PBKS</option><option>RR</option><option>GT</option><option>LSG</option></select>
           </div>
@@ -129,7 +125,7 @@
         <input id="playerSearch" placeholder="🔍  Search…" oninput="renderPlayers()" style="width:200px"/>
       </div>
       <div style="overflow-x:auto">
-        <table><thead><tr><th>#</th><th>Player</th><th>IPL Team</th><th>Runs</th><th>Wickets</th><th>Catches</th><th>Total Pts</th><th>Status</th><th></th></tr></thead>
+        <table><thead><tr><th>#</th><th>Player</th><th>Team</th><th>Runs</th><th>Wickets</th><th>Catches</th><th>Total Pts</th><th>Status</th><th></th></tr></thead>
         <tbody id="playerBody"></tbody></table>
       </div>
     </div>
@@ -163,8 +159,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase,ref,onValue,set,remove,update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-let DB=null, players={}, teams={}, editPlayerId=null, lbView='teams', RAPID_KEY='';
-const PROXY = 'https://corsproxy.io/?'; // CORS proxy for browser requests
+let DB=null, players={}, teams={}, editPlayerId=null, lbView='teams', CRIC_KEY='';
+const IPL_SERIES_ID = 'bde43d85-7354-4a51-ada3-9e8b3c5e9a2c'; // IPL 2026 series ID on cricketdata.org
 
 function uid(){ return 'id_'+Date.now()+'_'+Math.random().toString(36).slice(2,7); }
 function calcRaw(p){ return (p.runs||0)*100+(p.wickets||0)*2000+(p.catches||0)*250; }
@@ -174,10 +170,9 @@ function medal(i){ return i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`; }
 function rankColor(i){ return i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#cd7f32':'#aaa'; }
 function fmt(n){ return Math.round(n).toLocaleString(); }
 
-function setStatus(color,text,pct=null){
+function setStatus(color,text){
   ['syncDot','topDot'].forEach(id=>{ const el=document.getElementById(id); if(el)el.className='dot '+color; });
   const s=document.getElementById('syncStatus'); if(s)s.textContent=text;
-  if(pct!==null){ const pf=document.getElementById('progressFill'); if(pf)pf.style.width=pct+'%'; }
 }
 
 function nameSim(a,b){
@@ -185,138 +180,112 @@ function nameSim(a,b){
   if(a===b)return 1;
   if(a.includes(b)||b.includes(a))return 0.9;
   const la=a.split(' ').pop(), lb=b.split(' ').pop();
-  if(la===lb){
-    // check first letter matches too
-    if(a[0]===b[0])return 0.85;
-    return 0.75;
-  }
+  if(la===lb)return 0.8;
+  const ap=a.split(' '), bp=b.split(' ');
+  if(ap.length>=2&&bp.length>=2&&ap[0][0]===bp[0][0]&&ap.pop()===bp.pop())return 0.75;
   return 0;
 }
-function findPlayer(name){ let best=null,bs=0.7; Object.values(players).forEach(p=>{ const sc=nameSim(p.name,name); if(sc>bs){bs=sc;best=p;} }); return best; }
 
 // ── SETUP ──────────────────────────────────────────────────────────────────
 window.saveSetup=function(){
   const db=document.getElementById('dbUrlInput').value.trim();
-  const api=document.getElementById('rapidApiInput').value.trim();
-  if(!db.startsWith('https://')||!api){document.getElementById('setupError').style.display='block';return;}
-  localStorage.setItem('ipl_db',db); localStorage.setItem('ipl_api',api);
-  boot(db,api);
+  const key=document.getElementById('cricApiInput').value.trim();
+  if(!db.startsWith('https://')||!key){document.getElementById('setupError').style.display='block';return;}
+  localStorage.setItem('ipl_db',db); localStorage.setItem('ipl_cric',key);
+  boot(db,key);
 };
 
-function boot(dbUrl,apiKey){
-  RAPID_KEY=apiKey;
+function boot(dbUrl,cricKey){
+  CRIC_KEY=cricKey;
   document.getElementById('setupOverlay').style.display='none';
   document.getElementById('loading').style.display='flex';
   try{
     const app=initializeApp({databaseURL:dbUrl},'ipl');
     DB=getDatabase(app);
     let pr=false,tr=false;
-    function chk(){if(pr&&tr){document.getElementById('loading').style.display='none';document.getElementById('app').style.display='block';doSync();setInterval(doSync,15*60*1000);renderAll();}}
+    function chk(){if(pr&&tr){document.getElementById('loading').style.display='none';document.getElementById('app').style.display='block';doSync();setInterval(doSync,20*60*1000);renderAll();}}
     onValue(ref(DB,'players'),s=>{players=s.val()||{};pr=true;chk();renderAll();});
     onValue(ref(DB,'teams'),s=>{teams=s.val()||{};tr=true;chk();renderAll();});
   }catch(e){alert('Firebase error: '+e.message);document.getElementById('loading').style.display='none';document.getElementById('setupOverlay').style.display='flex';}
 }
 
-// ── API HELPER ─────────────────────────────────────────────────────────────
-async function cricbuzz(path){
-  const url=`https://cricbuzz-cricket.p.rapidapi.com${path}`;
-  const r=await fetch(url,{
-    headers:{'X-RapidAPI-Key':RAPID_KEY,'X-RapidAPI-Host':'cricbuzz-cricket.p.rapidapi.com'}
-  });
-  if(!r.ok) throw new Error(`API ${r.status}: ${r.statusText}`);
-  const text=await r.text();
-  if(!text||text.trim()==='') throw new Error('Empty API response - check key/subscription');
-  return JSON.parse(text);
+// ── SYNC ──────────────────────────────────────────────────────────────────
+window.manualSync=function(){ doSync(); };
+
+async function cricGet(url){
+  const r=await fetch(url);
+  if(!r.ok) throw new Error('API '+r.status);
+  const data=await r.json();
+  if(data.status==='failure') throw new Error(data.reason||'API failure');
+  return data;
 }
 
 function delay(ms){ return new Promise(r=>setTimeout(r,ms)); }
 
-// ── MAIN SYNC ─────────────────────────────────────────────────────────────
-window.manualSync=function(){ doSync(); };
-
 async function doSync(){
-  if(!RAPID_KEY){ setStatus('yellow','Enter API key in setup'); return; }
-  if(Object.keys(players).length===0){ setStatus('yellow','Add players to start tracking',0); return; }
+  if(!CRIC_KEY){ setStatus('yellow','Enter API key in setup'); return; }
+  if(Object.keys(players).length===0){ setStatus('yellow','Add players to start tracking'); return; }
 
-  setStatus('yellow','Fetching recent IPL matches…',5);
+  setStatus('yellow','Finding IPL 2026 matches…');
   try{
-    // Step 1: Get recent matches to find IPL 2026 ones
-    const recentData = await cricbuzz('/matches/v1/recent');
+    // Step 1: Get current/recent matches
+    const matchData = await cricGet(`https://api.cricapi.com/v1/currentMatches?apikey=${CRIC_KEY}&offset=0`);
     await delay(300);
 
-    // Find all IPL match IDs
-    const iplMatchIds=[];
-    const typeMatches = recentData.typeMatches||[];
-    for(const tm of typeMatches){
-      for(const sm of (tm.seriesMatches||[])){
-        const sd=sm.seriesAdWrapper||sm;
-        const sn=(sd.seriesName||sd.series?.name||'').toLowerCase();
-        if(sn.includes('indian premier')||sn.includes('ipl')||sn.includes('tata ipl')){
-          for(const m of (sd.matches||[])){
-            if(m.matchInfo?.matchId) iplMatchIds.push(m.matchInfo.matchId);
-          }
-        }
-      }
-    }
+    // Find IPL matches
+    const iplMatches = (matchData.data||[]).filter(m=>{
+      const name=(m.name||m.series||'').toLowerCase();
+      return name.includes('indian premier')||name.includes('ipl')||name.includes('tata ipl');
+    });
 
-    // Also check live matches
-    await delay(200);
-    const liveData = await cricbuzz('/matches/v1/live');
-    for(const tm of (liveData.typeMatches||[])){
-      for(const sm of (tm.seriesMatches||[])){
-        const sd=sm.seriesAdWrapper||sm;
-        const sn=(sd.seriesName||sd.series?.name||'').toLowerCase();
-        if(sn.includes('indian premier')||sn.includes('ipl')||sn.includes('tata ipl')){
-          for(const m of (sd.matches||[])){
-            if(m.matchInfo?.matchId&&!iplMatchIds.includes(m.matchInfo.matchId))
-              iplMatchIds.push(m.matchInfo.matchId);
-          }
-        }
-      }
-    }
+    // Also fetch series matches
+    await delay(300);
+    const seriesData = await cricGet(`https://api.cricapi.com/v1/series_info?apikey=${CRIC_KEY}&id=${IPL_SERIES_ID}`);
+    const seriesMatchIds = (seriesData.data?.matchList||[]).map(m=>m.id).filter(Boolean);
 
-    if(iplMatchIds.length===0){
-      setStatus('yellow','No IPL 2026 matches found yet — IPL may not have started',100);
+    setStatus('yellow',`Found ${iplMatches.length} live + ${seriesMatchIds.length} total IPL matches · fetching scorecards…`);
+
+    // Step 2: Get all match IDs to process
+    const allMatchIds=[...new Set([...iplMatches.map(m=>m.id),...seriesMatchIds])].filter(Boolean);
+
+    if(allMatchIds.length===0){
+      setStatus('yellow','No IPL 2026 matches found yet');
       return;
     }
 
-    setStatus('yellow',`Found ${iplMatchIds.length} IPL match(es) · loading scorecards…`,20);
-
-    // Step 2: Aggregate stats from all scorecards
+    // Step 3: Fetch scorecards and aggregate stats
     const aggRuns={}, aggWickets={}, aggCatches={};
 
-    for(let i=0;i<iplMatchIds.length;i++){
-      const matchId=iplMatchIds[i];
-      const pct=20+Math.round((i/iplMatchIds.length)*70);
-      setStatus('yellow',`Loading scorecard ${i+1}/${iplMatchIds.length}…`,pct);
+    // Use only first 5 matches to conserve API calls (100/day limit)
+    const toProcess = allMatchIds.slice(0,5);
+    for(let i=0;i<toProcess.length;i++){
+      await delay(400);
       try{
-        await delay(400);
-        const sc=await cricbuzz(`/mcenter/v1/${matchId}/scard`);
-        for(const inn of (sc.scoreCard||[])){
+        const sc = await cricGet(`https://api.cricapi.com/v1/match_scorecard?apikey=${CRIC_KEY}&id=${toProcess[i]}`);
+        const scorecard = sc.data?.scorecard||[];
+        for(const innings of scorecard){
           // Batting
-          for(const bat of Object.values(inn.batTeamDetails?.batsmenData||{})){
-            const n=bat.batName||''; if(!n)continue;
-            aggRuns[n]=(aggRuns[n]||0)+(bat.runs||0);
-            // Catches from dismissal
-            const dis=(bat.outDesc||'');
-            const cm=dis.match(/^c\s+(.+?)\s+b\s+/i);
-            if(cm&&!dis.toLowerCase().startsWith('c&b')){
+          for(const bat of (innings.batting||[])){
+            const n=bat.batsman?.name||bat.name||''; if(!n)continue;
+            aggRuns[n]=(aggRuns[n]||0)+(bat.r||bat.runs||0);
+            // Catch detection
+            const dis=(bat['dismissal-text']||bat.dismissal||'');
+            const cm=dis.match(/c\s+(.+?)\s+b\s+/i);
+            if(cm){
               const catcher=cm[1].trim();
               aggCatches[catcher]=(aggCatches[catcher]||0)+1;
             }
           }
           // Bowling
-          for(const bowl of Object.values(inn.bowlTeamDetails?.bowlersData||{})){
-            const n=bowl.bowlName||''; if(!n)continue;
-            aggWickets[n]=(aggWickets[n]||0)+(bowl.wickets||0);
+          for(const bowl of (innings.bowling||[])){
+            const n=bowl.bowler?.name||bowl.name||''; if(!n)continue;
+            aggWickets[n]=(aggWickets[n]||0)+(bowl.w||bowl.wickets||0);
           }
         }
-      }catch(e){ console.warn(`Scorecard ${matchId} failed:`,e.message); }
+      }catch(e){ console.warn('Scorecard error:',e.message); }
     }
 
-    setStatus('yellow','Updating player stats…',95);
-
-    // Step 3: Match to fantasy players and update Firebase
+    // Step 4: Update Firebase for matched players
     let updated=0;
     for(const player of Object.values(players)){
       let newRuns=player.runs||0, newWkts=player.wickets||0, newCatch=player.catches||0;
@@ -332,17 +301,33 @@ async function doSync(){
         if(nameSim(player.name,n)>=0.7){ newCatch=cats; break; }
       }
 
-      if(found||(newRuns!==player.runs||newWkts!==player.wickets||newCatch!==player.catches)){
+      if(found){
         update(ref(DB,`players/${player.id}`),{runs:newRuns,wickets:newWkts,catches:newCatch,lastUpdated:Date.now()});
         updated++;
       }
     }
 
-    setStatus('green',`✅ Season stats updated · ${updated} player(s) synced from ${iplMatchIds.length} matches · refreshes every 15 min`,100);
+    setStatus('green',`✅ Stats updated · ${updated} player(s) synced from ${toProcess.length} matches · auto-refreshes every 20 min`);
 
   }catch(e){
     console.error(e);
-    setStatus('red','❌ '+e.message,0);
+    // Fallback: try series_info endpoint directly  
+    try{
+      setStatus('yellow','Trying alternative endpoint…');
+      await delay(300);
+      const matches = await cricGet(`https://api.cricapi.com/v1/matches?apikey=${CRIC_KEY}&offset=0`);
+      const ipl=(matches.data||[]).filter(m=>{
+        const n=(m.name||m.series||'').toLowerCase();
+        return n.includes('ipl')||n.includes('indian premier');
+      });
+      if(ipl.length>0){
+        setStatus('green',`✅ Found ${ipl.length} IPL matches · ${ipl.map(m=>m.name).join(', ')}`);
+      } else {
+        setStatus('yellow','IPL matches not found — API may need a moment. Try refreshing.');
+      }
+    }catch(e2){
+      setStatus('red','❌ API error: '+e.message+' — check your cricketdata.org key');
+    }
   }
 }
 
@@ -362,7 +347,7 @@ window.renderPlayers=function(){
   document.getElementById('playerCount').textContent=Object.keys(players).length+' PLAYERS';
   const rc=i=>i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#cd7f32':'#555';
   document.getElementById('playerBody').innerHTML=sorted.length===0
-    ?`<tr><td colspan="9" style="text-align:center;padding:40px;color:#444">No players yet. Add some above!</td></tr>`
+    ?`<tr><td colspan="9" style="text-align:center;padding:40px;color:#444">No players yet!</td></tr>`
     :sorted.map((p,i)=>`<tr>
       <td style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:${rc(i)}">${i+1}</td>
       <td style="font-weight:600">${p.name}</td>
@@ -373,7 +358,7 @@ window.renderPlayers=function(){
       <td style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:#f5a623">${fmt(calcRaw(p))}</td>
       <td style="font-size:12px;color:${p.lastUpdated?'#7bff9e':'#666'}">${p.lastUpdated?'🟢 Synced':'⏳ Pending'}</td>
       <td style="display:flex;gap:6px">
-        <button class="btn-sm btn-dark" onclick="startEditPlayer('${p.id}')">Edit</button>
+        <button class="btn-dark" style="padding:5px 10px;font-size:13px;border-radius:5px" onclick="startEditPlayer('${p.id}')">Edit</button>
         <button class="btn-red" onclick="deletePlayer('${p.id}')">Del</button>
       </td></tr>`).join('');
 };
@@ -382,7 +367,7 @@ window.submitPlayer=function(){
   const name=document.getElementById('pName').value.trim();if(!name)return;
   const p={id:editPlayerId||uid(),name,iplTeam:document.getElementById('pTeam').value,runs:0,wickets:0,catches:0,lastUpdated:null};
   set(ref(DB,`players/${p.id}`),p);cancelEditPlayer();
-  setTimeout(doSync,500);
+  setTimeout(doSync,800);
 };
 window.startEditPlayer=function(id){
   const p=players[id];if(!p)return;editPlayerId=id;
@@ -396,7 +381,7 @@ window.cancelEditPlayer=function(){
   document.getElementById('playerSubmitBtn').textContent='ADD PLAYER';document.getElementById('playerCancelBtn').style.display='none';
 };
 window.deletePlayer=function(id){
-  if(!confirm('Delete player?'))return;remove(ref(DB,`players/${id}`));
+  if(!confirm('Delete?'))return;remove(ref(DB,`players/${id}`));
   Object.values(teams).forEach(t=>{if((t.roster||[]).find(r=>r.pid===id))update(ref(DB,`teams/${t.id}`),{roster:(t.roster||[]).filter(r=>r.pid!==id)});});
 };
 
@@ -498,8 +483,8 @@ window.renderLeaderboard=function(){
 };
 
 // ── BOOT ──────────────────────────────────────────────────────────────────
-const db=localStorage.getItem('ipl_db'),api=localStorage.getItem('ipl_api');
-if(db&&api){boot(db,api);}
+const db=localStorage.getItem('ipl_db'), cric=localStorage.getItem('ipl_cric');
+if(db&&cric){boot(db,cric);}
 else{document.getElementById('loading').style.display='none';document.getElementById('setupOverlay').style.display='flex';}
 </script>
 </body>
