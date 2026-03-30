@@ -298,21 +298,43 @@ function matchName(apiName){
 }
 
 function findStats(playerName){
-  const pn=playerName.toLowerCase();
-  // Direct lookup
+  const pn=playerName.toLowerCase().trim();
+  const pLast=pn.split(' ').pop();
+  
+  // 1. Direct exact match
   if(stats[pn]) return stats[pn];
-  // Check aliases
+  
+  // 2. Check all aliases for this player
   const aliases=ALIASES[pn]||[];
   for(const a of aliases){
     if(stats[a]) return stats[a];
   }
-  // Reverse: check if any stats key matches this player
+  
+  // 3. Search all stats keys for a match
   for(const [key,val] of Object.entries(stats)){
-    const kn=matchName(key);
+    const kn=key.toLowerCase().trim();
+    const kLast=kn.split(' ').pop();
+    
+    // Exact match
     if(kn===pn) return val;
-    // try aliases of this player
-    if(aliases.some(a=>key===a||key.includes(a.split(' ').pop()))) return val;
+    
+    // Last name match + first initial
+    if(kLast===pLast && pn[0]===kn[0]) return val;
+    
+    // Last name match alone (for common names be careful)
+    if(kLast===pLast && pLast.length>4) return val;
+    
+    // One contains the other
+    if(kn.includes(pn)||pn.includes(kn)) return val;
+    
+    // Check if key matches any alias of this player
+    if(aliases.some(a=>a.toLowerCase()===kn)) return val;
+    
+    // Check reverse: is this player's name an alias of the key?
+    const keyAliases=ALIASES[kn]||[];
+    if(keyAliases.some(a=>a.toLowerCase()===pn||a.toLowerCase()===pLast)) return val;
   }
+  
   return {runs:0,wickets:0,catches:0};
 }
 
