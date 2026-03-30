@@ -126,7 +126,7 @@ const IPL_2026_ID = '87c62aac-bc3c-4738-ab93-19da0690488f';
 // slot: C=captain(2x), VC=vice(1.5x), N=normal
 const TEAMS_DEF = [
   { id:'sanan', name:"Sanan's XI", owner:'Sanan', players:[
-    {name:'phil salt',          ipl:'RCB', slot:'N'},
+    {name:'philip salt',          ipl:'RCB', slot:'N'},
     {name:'virat kohli',        ipl:'RCB', slot:'C'},
     {name:'rajat patidar',      ipl:'RCB', slot:'N'},
     {name:'shivam dube',        ipl:'CSK', slot:'N'},
@@ -210,6 +210,7 @@ const NAME_MAP = {
   // Players whose display name differs from API name
   'suryakumar yadav': 'suryakumar yadav',
   'vaibhav sooryavanshi': 'vaibhav sooryavanshi',
+  'philip salt': 'philip salt',
   'mohammed shami': 'mohammed shami',
   'ms dhoni': 'ms dhoni',
   'kl rahul': 'kl rahul',
@@ -228,9 +229,24 @@ const NAME_MAP = {
   'josh hazlewood': 'josh hazlewood',
 };
 
+// Players with split API keys (batting vs fielding under different names)
+const MERGE_KEYS = {
+  'phil salt': ['phil salt', 'philip salt'],
+};
+
 function findStats(playerName, iplTeam){
-  const key = (NAME_MAP[playerName.toLowerCase()] || playerName.toLowerCase()).trim();
-  return stats[key] || {runs:0, wickets:0, catches:0};
+  const pn = playerName.toLowerCase().trim();
+  const keys = MERGE_KEYS[pn] || [NAME_MAP[pn] || pn];
+  const merged = {runs:0, wickets:0, catches:0};
+  for(const k of keys){
+    const s = stats[k];
+    if(s){
+      merged.runs += s.runs||0;
+      merged.wickets += s.wickets||0;
+      merged.catches += s.catches||0;
+    }
+  }
+  return merged;
 }
 
 // ── STATE ──────────────────────────────────────────────────────────────────
