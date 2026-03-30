@@ -341,23 +341,46 @@ function setStatus(color,text){
 }
 
 window.doSync=async function(force=true){
-  if(!force && Date.now()-lastSync < 5*60*1000) return;
-  setStatus('yellow','Fetching IPL 2026 match data…');
+  setStatus('yellow','Checking for new IPL 2026 matches…');
   try{
+    // Step 1: Get match list (1 API hit)
     const si=await fetch(`https://api.cricapi.com/v1/series_info?id=${IPL_2026_ID}&apikey=${API_KEY}`);
     const sid=await si.json();
-    if(sid.status==='failure') throw new Error(sid.reason||'API limit reached — try again tomorrow');
+    if(sid.status==='failure') throw new Error(sid.reason||'API limit reached — try again later');
     const completed=(sid.data?.matchList||[]).filter(m=>m.matchEnded===true);
     if(!completed.length){ setStatus('yellow','No completed IPL 2026 matches yet'); return; }
 
-    setStatus('yellow',`${completed.length} matches found · loading scorecards…`);
-    const aggRuns={}, aggWkts={}, aggCatch={};
+    // Step 2: Load already-processed match IDs from Firebase (free, no API hit)
+    const processedSnap=await get(ref(DB,'processedMatches'));
+    const processed=processedSnap.val()||{};
 
-    for(let i=0;i<completed.length;i++){
-      const m=completed[i];
-      setStatus('yellow',`Scorecard ${i+1}/${completed.length}…`);
+    // Step 3: Only fetch NEW matches not yet processed
+    const newMatches=completed.filter(m=>!processed[m.id]);
+    if(!newMatches.length){
+      setStatus('green',`✅ Already up to date · ${completed.length} matches cached · ${new Date().toLocaleTimeString()}`);
+      return;
+    }
+
+    setStatus('yellow',`${newMatches.length} new match(es) found · fetching scorecards… (${newMatches.length*10+1} API hits)`);
+
+    // Step 4: Load existing cached stats from Firebase
+    const existingSnap=await get(ref(DB,'stats'));
+    const aggRuns={}, aggWkts={}, aggCatch={};
+    // Seed from existing cache
+    const existing=existingSnap.val()||{};
+    for(const [k,v] of Object.entries(existing)){
+      aggRuns[k]=v.runs||0;
+      aggWkts[k]=v.wickets||0;
+      aggCatch[k]=v.catches||0;
+    }
+
+    // Step 5: Fetch ONLY new match scorecards
+    const newProcessed={...processed};
+    for(let i=0;i<newMatches.length;i++){
+      const m=newMatches[i];
+      setStatus('yellow',`New match ${i+1}/${newMatches.length}: ${m.name?.split(',')[0]||'Match'}…`);
       try{
-        await new Promise(r=>setTimeout(r,300));
+        await new Promise(r=>setTimeout(r,400));
         const sr=await fetch(`https://api.cricapi.com/v1/match_scorecard?id=${m.id}&apikey=${API_KEY}`);
         const sd=await sr.json();
         if(sd.status==='failure') throw new Error(sd.reason);
@@ -379,20 +402,23 @@ window.doSync=async function(force=true){
             aggWkts[mc]=(aggWkts[mc]||0)+(parseInt(bowl.w)||0);
           }
         }
+        // Mark this match as processed
+        newProcessed[m.id]=true;
       }catch(e){ console.warn('Scorecard error:',e.message); }
     }
 
-    // Build stats object keyed by canonical name
-    const newStats={};
-    const allCanonical=[...new Set([...Object.keys(aggRuns),...Object.keys(aggWkts),...Object.keys(aggCatch)])];
-    for(const c of allCanonical){
-      newStats[c]={runs:aggRuns[c]||0,wickets:aggWkts[c]||0,catches:aggCatch[c]||0};
+    // Step 6: Save merged stats + processed match IDs to Firebase
+    const mergedStats={};
+    const allKeys=[...new Set([...Object.keys(aggRuns),...Object.keys(aggWkts),...Object.keys(aggCatch)])];
+    for(const c of allKeys){
+      mergedStats[c]={runs:aggRuns[c]||0,wickets:aggWkts[c]||0,catches:aggCatch[c]||0};
     }
 
-    await set(ref(DB,'stats'),newStats);
+    await set(ref(DB,'stats'),mergedStats);
+    await set(ref(DB,'processedMatches'),newProcessed);
     await set(ref(DB,'lastSync'),Date.now());
     lastSync=Date.now();
-    setStatus('green',`✅ Synced from ${completed.length} IPL 2026 matches · ${new Date().toLocaleTimeString()}`);
+    setStatus('green',`✅ ${newMatches.length} new match(es) synced · ${completed.length} total cached · ${new Date().toLocaleTimeString()}`);
   }catch(e){
     console.error(e);
     setStatus('red','❌ '+e.message);
