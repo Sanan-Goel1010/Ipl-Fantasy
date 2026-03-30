@@ -229,6 +229,15 @@ function findStats(playerName, iplTeam){
 // ── STATE ──────────────────────────────────────────────────────────────────
 let DB, stats={}, teamNames={}, renamingId=null, lastSync=0;
 
+
+// ── HELPERS ────────────────────────────────────────────────────────────────
+function calcRaw(p){ const s=findStats(p.name,p.ipl); return s.runs*100+s.wickets*2000+s.catches*250; }
+function calcPts(p){ const raw=calcRaw(p); return p.slot==='C'?raw*2:p.slot==='VC'?raw*1.5:raw; }
+function teamTotal(team){ return team.players.reduce((s,p)=>s+calcPts(p),0); }
+function fmt(n){ return Math.round(n).toLocaleString(); }
+function medal(i){ return i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`; }
+function rankColor(i){ return i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#cd7f32':'#aaa'; }
+
 // ── FIREBASE BOOT ──────────────────────────────────────────────────────────
 async function boot(){
   try{
