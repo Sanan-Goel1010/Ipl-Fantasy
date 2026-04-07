@@ -38,7 +38,6 @@
     .hide-mobile{display:none !important}
     td.pts-col{font-size:14px !important}
     #playerBoard tr td:first-child{padding:8px 6px !important}
-    
     .tab-btn{padding:10px 16px !important;font-size:14px !important;letter-spacing:1px !important}
     .header-badges{display:none !important}
     .sync-bar{font-size:12px !important}
@@ -123,7 +122,6 @@ const API_KEY = 'aa84e456-dba0-4c58-ae35-59815fe6eea8';
 const IPL_2026_ID = '87c62aac-bc3c-4738-ab93-19da0690488f';
 
 // ── HARDCODED TEAMS ────────────────────────────────────────────────────────
-// slot: C=captain(2x), VC=vice(1.5x), N=normal
 const TEAMS_DEF = [
   { id:'sanan', name:"Sanan's XI", owner:'Sanan', players:[
     {name:'philip salt',          ipl:'RCB', slot:'N'},
@@ -205,9 +203,7 @@ const TEAMS_DEF = [
   ]},
 ];
 
-// Simple direct name lookup - names match API exactly
 const NAME_MAP = {
-  // Players whose display name differs from API name
   'suryakumar yadav': 'suryakumar yadav',
   'vaibhav sooryavanshi': 'vaibhav sooryavanshi',
   'philip salt': 'philip salt',
@@ -229,7 +225,6 @@ const NAME_MAP = {
   'josh hazlewood': 'josh hazlewood',
 };
 
-// Players with split API keys (batting vs fielding under different names)
 const MERGE_KEYS = {
   'philip salt': ['philip salt', 'phil salt'],
 };
@@ -252,7 +247,6 @@ function findStats(playerName, iplTeam){
 // ── STATE ──────────────────────────────────────────────────────────────────
 let DB, stats={}, teamNames={}, renamingId=null, lastSync=0;
 
-
 // ── HELPERS ────────────────────────────────────────────────────────────────
 function calcRaw(p){ const s=findStats(p.name,p.ipl); return s.runs*100+s.wickets*2000+s.catches*250; }
 function calcPts(p){ const raw=calcRaw(p); return p.slot==='C'?raw*2:p.slot==='VC'?raw*1.5:raw; }
@@ -266,12 +260,10 @@ async function boot(){
   try{
     const app=initializeApp({databaseURL:DB_URL},'ipl');
     DB=getDatabase(app);
-    // Load cached stats and team names
     onValue(ref(DB,'stats'),s=>{ stats=s.val()||{}; render(); });
     onValue(ref(DB,'teamNames'),s=>{ teamNames=s.val()||{}; render(); });
     document.getElementById('loading').style.display='none';
     document.getElementById('app').style.display='block';
-    // Load last sync time but DON'T auto-sync — user must click Refresh
     const metaSnap=await get(ref(DB,'lastSync'));
     const ls=metaSnap.val()||0;
     if(ls){ setStatus('green','Last synced: '+new Date(ls).toLocaleTimeString()+' · Click ↻ REFRESH to update'); }
@@ -288,38 +280,51 @@ function setStatus(color,text){
 window.doSync=async function(force=true){
   setStatus('yellow','Checking for new IPL 2026 matches…');
   try{
-    // Step 1: Get match list (1 API hit)
+    // Step 1: Get match list
     const si=await fetch(`https://api.cricapi.com/v1/series_info?id=${IPL_2026_ID}&apikey=${API_KEY}`);
     const sid=await si.json();
     if(sid.status==='failure') throw new Error(sid.reason||'API limit reached — try again later');
     const completed=(sid.data?.matchList||[]).filter(m=>m.matchEnded===true);
     if(!completed.length){ setStatus('yellow','No completed IPL 2026 matches yet'); return; }
 
-    // Step 2: Load already-processed match IDs from Firebase (free, no API hit)
+    // Step 2: Load already-processed match IDs from Firebase
     const processedSnap=await get(ref(DB,'processedMatches'));
     const processed=processedSnap.val()||{};
 
+    // ── FIX: only trust existing cached stats if processedMatches is intact ──
+    const hasProcessedHistory = Object.keys(processed).length > 0;
+
     // Step 3: Only fetch NEW matches not yet processed
     const newMatches=completed.filter(m=>!processed[m.id]);
+
     if(!newMatches.length){
       setStatus('green',`✅ Already up to date · ${completed.length} matches cached · ${new Date().toLocaleTimeString()}`);
       return;
     }
 
-    setStatus('yellow',`${newMatches.length} new match(es) found · fetching scorecards… (${newMatches.length*10+1} API hits)`);
+    setStatus('yellow',`${newMatches.length} new match(es) found · fetching scorecards…`);
 
-    // Step 4: Load existing cached stats from Firebase
-    const existingSnap=await get(ref(DB,'stats'));
+    // Step 4: Seed from existing cache ONLY if processedMatches is intact
+    // If processedMatches was wiped/lost, start from zero to avoid doubling
     const aggRuns={}, aggWkts={}, aggCatch={}, aggTeam={};
-    // Seed from existing cache
-    const existing=existingSnap.val()||{};
-    for(const [k,v] of Object.entries(existing)){
-      aggRuns[k]=v.runs||0;
-      aggWkts[k]=v.wickets||0;
-      aggCatch[k]=v.catches||0;
+
+    if(hasProcessedHistory){
+      const existingSnap=await get(ref(DB,'stats'));
+      const existing=existingSnap.val()||{};
+      for(const [k,v] of Object.entries(existing)){
+        aggRuns[k]=v.runs||0;
+        aggWkts[k]=v.wickets||0;
+        aggCatch[k]=v.catches||0;
+        if(v.team) aggTeam[k]=v.team;
+      }
+    } else {
+      // processedMatches is empty — reprocess ALL completed matches from scratch
+      // so treat all completed matches as "new" (already done via filter above
+      // since processed={} means every match is unprocessed)
+      console.log('processedMatches empty — reprocessing all matches from scratch');
     }
 
-    // Step 5: Fetch ONLY new match scorecards
+    // Step 5: Fetch scorecards for new matches
     const newProcessed={...processed};
     for(let i=0;i<newMatches.length;i++){
       const m=newMatches[i];
@@ -330,7 +335,6 @@ window.doSync=async function(force=true){
         const sd=await sr.json();
         if(sd.status==='failure') throw new Error(sd.reason);
         for(const inn of (sd.data?.scorecard||[])){
-          // Get batting team short name from innings
           const batTeam=(inn.batTeamDetails?.batTeamShortName||inn.batTeamName||'').toUpperCase();
           for(const bat of (inn.batting||[])){
             const n=(bat.batsman?.name||bat.name||'').toLowerCase(); if(!n) continue;
@@ -343,7 +347,6 @@ window.doSync=async function(force=true){
               aggCatch[cat]=(aggCatch[cat]||0)+1;
             }
           }
-          // Get bowling team
           const bowlTeam=(inn.bowlTeamDetails?.bowlTeamShortName||inn.bowlTeamName||'').toUpperCase();
           for(const bowl of (inn.bowling||[])){
             const n=(bowl.bowler?.name||bowl.name||'').toLowerCase(); if(!n) continue;
@@ -351,7 +354,6 @@ window.doSync=async function(force=true){
             if(bowlTeam) aggTeam[n]=bowlTeam;
           }
         }
-        // Mark this match as processed
         newProcessed[m.id]=true;
       }catch(e){ console.warn('Scorecard error:',e.message); }
     }
@@ -410,7 +412,6 @@ function renderTeams(){
   const sorted=[...TEAMS_DEF].sort((a,b)=>teamTotal(b)-teamTotal(a));
   const leader=sorted[0];
 
-  // Leaderboard strip at top
   const strip=`<div style="background:#111120;border:1px solid #2a2a3d;border-radius:12px;overflow:hidden;margin-bottom:20px">
     ${sorted.map((t,i)=>{
       const name=teamNames[t.id]||t.name;
@@ -436,7 +437,6 @@ function renderTeams(){
     }).join('')}
   </div>`;
 
-  // Team detail cards in 2-col grid
   const cards=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr));gap:10px">
     ${sorted.map((t,i)=>{
       const name=teamNames[t.id]||t.name;
@@ -480,7 +480,6 @@ function renderTeams(){
 }
 
 function renderPlayers(){
-  // Collect all players with their fantasy team
   const allPlayers=[];
   TEAMS_DEF.forEach(t=>{
     const tname=teamNames[t.id]||t.name;
