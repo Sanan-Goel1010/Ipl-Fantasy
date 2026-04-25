@@ -322,7 +322,14 @@ function parseCricbuzzScorecard(data){
   return result;
 }
 
-async function findCricbuzzMatchId(team1Name, team2Name, matchDateMs){
+async function findCricbuzzMatchId(cricapiMatchId, team1Name, team2Name, matchDateMs){
+  // First check Firebase cache
+  try{
+    const cached = await get(ref(DB,'cricbuzzIds/'+cricapiMatchId));
+    if(cached.val()) return cached.val();
+  }catch(e){}
+
+  // Fall back to recent endpoint
   try{
     const r=await fetch(`${PROXY_URL}?type=recent`);
     const d=await r.json();
@@ -339,6 +346,8 @@ async function findCricbuzzMatchId(team1Name, team2Name, matchDateMs){
           const mDay=new Date(parseInt(mi.startDate)).toDateString();
           const t1=mi.team1?.teamSName, t2=mi.team2?.teamSName;
           if(mDay===matchDay&&((t1===t1s&&t2===t2s)||(t1===t2s&&t2===t1s))){
+            // Cache it in Firebase for future use
+            await set(ref(DB,'cricbuzzIds/'+cricapiMatchId), mi.matchId);
             return mi.matchId;
           }
         }
@@ -499,7 +508,7 @@ window.doSync=async function(){
           const teams=sd.data?.teams||[];
           const t1=teams[0]||'', t2=teams[1]||'';
           const matchTs=m.dateTimeGMT?new Date(m.dateTimeGMT).getTime():Date.now();
-          const cbMatchId=await findCricbuzzMatchId(t1,t2,matchTs);
+          const cbMatchId=await findCricbuzzMatchId(m.id,t1,t2,matchTs);
 
           if(cbMatchId){
             const cbStats=await fetchCricbuzzStats(cbMatchId);
