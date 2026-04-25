@@ -504,13 +504,14 @@ window.doSync=async function(){
 
         newProcessed[m.id]=true;
 
-        // ── CRICBUZZ BACKUP VERIFICATION ──────────────────────────────────
-        setStatus('yellow',`Verifying ${matchLabel} with Cricbuzz…`);
+        // ── CRICBUZZ BACKUP VERIFICATION (only for matches within last 14 days) ──
+        const matchTs=m.dateTimeGMT?new Date(m.dateTimeGMT).getTime():0;
+        const isRecent=matchTs>0&&(Date.now()-matchTs)<14*24*60*60*1000;
+        if(isRecent) setStatus('yellow',`Verifying ${matchLabel} with Cricbuzz…`);
         try{
           const teams=sd.data?.teams||[];
           const t1=teams[0]||'', t2=teams[1]||'';
-          const matchTs=m.dateTimeGMT?new Date(m.dateTimeGMT).getTime():Date.now();
-          const cbMatchId=await findCricbuzzMatchId(m.id,t1,t2,matchTs);
+          const cbMatchId=isRecent?await findCricbuzzMatchId(m.id,t1,t2,matchTs):null;
 
           if(cbMatchId){
             const cbStats=await fetchCricbuzzStats(cbMatchId);
