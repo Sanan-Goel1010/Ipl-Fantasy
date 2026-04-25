@@ -329,31 +329,33 @@ async function findCricbuzzMatchId(cricapiMatchId, team1Name, team2Name, matchDa
     if(cached.val()) return cached.val();
   }catch(e){}
 
-  // Fall back to recent endpoint
-  try{
-    const r=await fetch(`${PROXY_URL}?type=recent`);
-    const d=await r.json();
-    const t1s=TEAM_SHORT[team1Name.toLowerCase()];
-    const t2s=TEAM_SHORT[team2Name.toLowerCase()];
-    if(!t1s||!t2s) return null;
-    const matchDay=new Date(parseInt(matchDateMs)).toDateString();
-    for(const tm of (d.typeMatches||[])){
-      for(const sm of (tm.seriesMatches||[])){
-        const series=sm.seriesAdWrapper;
-        if(!series?.seriesName?.includes('Indian Premier League')) continue;
-        for(const m of (series.matches||[])){
-          const mi=m.matchInfo; if(!mi) continue;
-          const mDay=new Date(parseInt(mi.startDate)).toDateString();
-          const t1=mi.team1?.teamSName, t2=mi.team2?.teamSName;
-          if(mDay===matchDay&&((t1===t1s&&t2===t2s)||(t1===t2s&&t2===t1s))){
-            // Cache it in Firebase for future use
-            await set(ref(DB,'cricbuzzIds/'+cricapiMatchId), mi.matchId);
-            return mi.matchId;
+  // Search recent + upcoming + live endpoints
+  const t1s=TEAM_SHORT[team1Name.toLowerCase()];
+  const t2s=TEAM_SHORT[team2Name.toLowerCase()];
+  if(!t1s||!t2s) return null;
+  const matchDay=new Date(parseInt(matchDateMs)).toDateString();
+
+  for(const type of ['recent','upcoming','live']){
+    try{
+      const r=await fetch(`${PROXY_URL}?type=${type}`);
+      const d=await r.json();
+      for(const tm of (d.typeMatches||[])){
+        for(const sm of (tm.seriesMatches||[])){
+          const series=sm.seriesAdWrapper;
+          if(!series?.seriesName?.includes('Indian Premier League')) continue;
+          for(const m of (series.matches||[])){
+            const mi=m.matchInfo; if(!mi) continue;
+            const mDay=new Date(parseInt(mi.startDate)).toDateString();
+            const t1=mi.team1?.teamSName, t2=mi.team2?.teamSName;
+            if(mDay===matchDay&&((t1===t1s&&t2===t2s)||(t1===t2s&&t2===t1s))){
+              await set(ref(DB,'cricbuzzIds/'+cricapiMatchId), mi.matchId);
+              return mi.matchId;
+            }
           }
         }
       }
-    }
-  }catch(e){ console.warn('Cricbuzz match lookup failed:',e.message); }
+    }catch(e){ console.warn('Cricbuzz '+type+' lookup failed:',e.message); }
+  }
   return null;
 }
 
