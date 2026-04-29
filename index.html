@@ -86,7 +86,7 @@
     <div style="font-size:32px">🏏</div>
     <div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(18px,4vw,28px);letter-spacing:2px;color:#f5a623;line-height:1">IPL FANTASY LEAGUE 2026</div>
-      <div style="font-size:11px;color:#888;letter-spacing:2px;text-transform:uppercase">Friends League · Live Season Stats · <span style="color:#f5a623">v5</span></div>
+      <div style="font-size:11px;color:#888;letter-spacing:2px;text-transform:uppercase">Friends League · Live Season Stats · <span style="color:#f5a623">v6</span></div>
     </div>
     <div class="header-badges" style="margin-left:auto;display:flex;gap:8px;font-size:11px;flex-wrap:wrap;align-items:center">
       <span style="background:#1a1a2e;border:1px solid #2a2a3d;border-radius:4px;padding:3px 8px">Run=<b style="color:#f5a623">100</b></span>
@@ -125,7 +125,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase,ref,onValue,set,update,get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase,ref,onValue,set,update,get,remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 // ── CONFIG ─────────────────────────────────────────────────────────────────
 const DB_URL      = 'https://ipl-fantasy-55b9f-default-rtdb.firebaseio.com';
@@ -291,6 +291,20 @@ function setStatus(color,text){
   const el=document.getElementById('syncDot'); if(el) el.className='dot '+color;
   const s=document.getElementById('syncStatus'); if(s) s.textContent=text;
 }
+
+// ── DEV: WIPE ALL MATCH DATA ──────────────────────────────────────────────
+window.wipeAll = async function(){
+  if(!confirm('⚠️ This will DELETE all stats, processed matches, and Cricbuzz cache from Firebase. Team names will be kept. Continue?')) return;
+  setStatus('yellow','Wiping all match data…');
+  try{
+    await remove(ref(DB,'stats'));
+    await remove(ref(DB,'processedMatches'));
+    await remove(ref(DB,'cricbuzzIds'));
+    await remove(ref(DB,'lastSync'));
+    setStatus('green','✅ Wiped. Click ↻ REFRESH to re-pull all matches from scratch.');
+    console.log('All match data wiped successfully.');
+  }catch(e){ console.error(e); setStatus('red','Wipe failed: '+e.message); }
+};
 
 // ── CRICBUZZ HELPERS ───────────────────────────────────────────────────────
 
@@ -465,6 +479,9 @@ window.doSync=async function(){
 
     const newProcessed={...processed};
     const allDiscrepancies=[];
+    const failedMatches=[];
+    const pendingMatches=[];  // scorecard not ready yet — will retry next refresh
+    let processedCount=0;
 
     for(let i=0;i<newMatches.length;i++){
       const m=newMatches[i];
@@ -475,12 +492,20 @@ window.doSync=async function(){
         await new Promise(r=>setTimeout(r,400));
         const sr=await fetch(`https://api.cricapi.com/v1/match_scorecard?id=${m.id}&apikey=${API_KEY}`);
         const sd=await sr.json();
-        if(sd.status==='failure') throw new Error(sd.reason);
 
-        // Track per-match delta for Cricbuzz comparison
+        // Detect "scorecard not ready yet" — don't mark processed, retry next time
+        const reason=(sd.reason||'').toLowerCase();
+        if(sd.status==='failure' && reason.includes('not found')){
+          console.log(`[${matchLabel}] scorecard not ready yet, will retry next refresh`);
+          pendingMatches.push(matchLabel);
+          continue;  // skip — don't add to newProcessed
+        }
+        if(sd.status==='failure') throw new Error(sd.reason||'api failure');
+        if(!sd.data?.scorecard?.length) throw new Error('empty scorecard');
+
         const matchRuns={},matchWkts={},matchCatch={};
 
-        for(const inn of (sd.data?.scorecard||[])){
+        for(const inn of sd.data.scorecard){
           const batTeam=(inn.batTeamDetails?.batTeamShortName||inn.batTeamName||'').toUpperCase();
           for(const bat of (inn.batting||[])){
             const n=(bat.batsman?.name||bat.name||'').toLowerCase(); if(!n) continue;
@@ -503,6 +528,7 @@ window.doSync=async function(){
         }
 
         newProcessed[m.id]=true;
+        processedCount++;
 
         // ── CRICBUZZ BACKUP VERIFICATION (only for matches within last 14 days) ──
         const matchTs=m.dateTimeGMT?new Date(m.dateTimeGMT).getTime():0;
@@ -540,7 +566,10 @@ window.doSync=async function(){
           }
         }catch(e){ console.warn('Cricbuzz verification error:',e.message); }
 
-      }catch(e){ console.warn('Scorecard error:',e.message); }
+      }catch(e){
+        console.error(`[${matchLabel}] FAILED:`,e.message);
+        failedMatches.push({label:matchLabel,error:e.message});
+      }
     }
 
     // Save to Firebase
@@ -549,13 +578,25 @@ window.doSync=async function(){
     for(const c of allKeys){
       mergedStats[c]={runs:aggRuns[c]||0,wickets:aggWkts[c]||0,catches:aggCatch[c]||0,team:aggTeam[c]||''};
     }
-
     await set(ref(DB,'stats'),mergedStats);
     await set(ref(DB,'processedMatches'),newProcessed);
     await set(ref(DB,'lastSync'),Date.now());
 
     const discMsg=allDiscrepancies.length?` · ⚠️ ${allDiscrepancies.length} Cricbuzz correction(s) applied`:'';
-    setStatus('green',`✅ ${newMatches.length} new match(es) synced · ${completed.length} total · ${new Date().toLocaleTimeString()}${discMsg}`);
+    const time=new Date().toLocaleTimeString();
+
+    if(processedCount===0 && pendingMatches.length>0 && failedMatches.length===0){
+      setStatus('yellow',`⏳ ${pendingMatches.length} match(es) ended but scorecard not ready yet (CricAPI lag). Try again in 10-30 min: ${pendingMatches.join(', ')}`);
+    } else if(processedCount===0 && failedMatches.length>0){
+      setStatus('red',`❌ All match(es) failed: ${failedMatches.map(f=>f.label+' ('+f.error+')').join(', ')}`);
+    } else if(failedMatches.length>0 || pendingMatches.length>0){
+      const parts=[`✅ ${processedCount} synced`];
+      if(pendingMatches.length) parts.push(`⏳ ${pendingMatches.length} pending (${pendingMatches.join(', ')})`);
+      if(failedMatches.length) parts.push(`❌ ${failedMatches.length} failed`);
+      setStatus('yellow',parts.join(' · ')+` · ${time}${discMsg}`);
+    } else {
+      setStatus('green',`✅ ${processedCount} new match(es) synced · ${completed.length} total · ${time}${discMsg}`);
+    }
 
     if(allDiscrepancies.length) showDiscrepancyPopup(allDiscrepancies);
 
