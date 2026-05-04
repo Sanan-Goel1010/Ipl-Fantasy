@@ -56,7 +56,6 @@
   <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#f5a623;letter-spacing:3px">LOADING IPL FANTASY…</div>
 </div>
 
-<!-- Rename Modal -->
 <div class="modal-bg" id="renameModal" style="display:none" onclick="if(event.target===this)closeRename()">
   <div class="modal">
     <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#f5a623;letter-spacing:2px;margin-bottom:16px">✏️ RENAME TEAM</div>
@@ -68,7 +67,6 @@
   </div>
 </div>
 
-<!-- Discrepancy Verification Modal -->
 <div class="modal-bg" id="discModal" style="display:none">
   <div class="modal" style="max-width:500px;max-height:85vh;display:flex;flex-direction:column">
     <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:#f5a623;letter-spacing:2px;margin-bottom:4px">⚠️ CRICBUZZ DATA MISMATCH</div>
@@ -86,7 +84,7 @@
     <div style="font-size:32px">🏏</div>
     <div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(18px,4vw,28px);letter-spacing:2px;color:#f5a623;line-height:1">IPL FANTASY LEAGUE 2026</div>
-      <div style="font-size:11px;color:#888;letter-spacing:2px;text-transform:uppercase">Friends League · Live Season Stats · <span style="color:#f5a623">v7</span></div>
+      <div style="font-size:11px;color:#888;letter-spacing:2px;text-transform:uppercase">Friends League · Live Season Stats · <span style="color:#f5a623">v8</span></div>
     </div>
     <div class="header-badges" style="margin-left:auto;display:flex;gap:8px;font-size:11px;flex-wrap:wrap;align-items:center">
       <span style="background:#1a1a2e;border:1px solid #2a2a3d;border-radius:4px;padding:3px 8px">Run=<b style="color:#f5a623">100</b></span>
@@ -127,106 +125,75 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase,ref,onValue,set,update,get,remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+// ═══════════════════════════════════════════════════════════════════════════
+// LEAGUE CONFIG (root paths — original league)
+// ═══════════════════════════════════════════════════════════════════════════
+const LEAGUE_ID = 'friends';
+const DB_BASE   = '';  // empty = root paths (legacy compat with v7 and earlier)
+const path = (key) => DB_BASE ? `${DB_BASE}/${key}` : key;
+
 // ── CONFIG ─────────────────────────────────────────────────────────────────
 const DB_URL      = 'https://ipl-fantasy-55b9f-default-rtdb.firebaseio.com';
 const API_KEY     = '54fd94d9-8cf0-4321-a233-e76d4699c8b2';
 const IPL_2026_ID = '87c62aac-bc3c-4738-ab93-19da0690488f';
 const PROXY_URL   = 'https://ipl-proxy.vercel.app/api/espn';
 
-// ── TEAM SHORT NAME MAP ────────────────────────────────────────────────────
 const TEAM_SHORT = {
-  'rajasthan royals':              'RR',
-  'mumbai indians':                'MI',
-  'chennai super kings':           'CSK',
-  'kolkata knight riders':         'KKR',
-  'royal challengers bengaluru':   'RCB',
-  'royal challengers bangalore':   'RCB',
-  'sunrisers hyderabad':           'SRH',
-  'delhi capitals':                'DC',
-  'punjab kings':                  'PBKS',
-  'gujarat titans':                'GT',
-  'lucknow super giants':          'LSG',
+  'rajasthan royals':'RR','mumbai indians':'MI','chennai super kings':'CSK',
+  'kolkata knight riders':'KKR','royal challengers bengaluru':'RCB',
+  'royal challengers bangalore':'RCB','sunrisers hyderabad':'SRH',
+  'delhi capitals':'DC','punjab kings':'PBKS','gujarat titans':'GT',
+  'lucknow super giants':'LSG',
 };
 
-// ── HARDCODED TEAMS ────────────────────────────────────────────────────────
 const TEAMS_DEF = [
   { id:'sanan', name:"Sanan's XI", owner:'Sanan', players:[
-    {name:'philip salt',          ipl:'RCB', slot:'N'},
-    {name:'virat kohli',          ipl:'RCB', slot:'C'},
-    {name:'rajat patidar',        ipl:'RCB', slot:'N'},
-    {name:'shivam dube',          ipl:'CSK', slot:'N'},
-    {name:'sunil narine',         ipl:'KKR', slot:'VC'},
-    {name:'david miller',         ipl:'DC',  slot:'N'},
-    {name:'washington sundar',    ipl:'GT',  slot:'N'},
-    {name:'krunal pandya',        ipl:'RCB', slot:'N'},
-    {name:'rashid khan',          ipl:'GT',  slot:'N'},
-    {name:'varun chakaravarthy',  ipl:'KKR', slot:'N'},
-    {name:'matheesha pathirana',  ipl:'KKR', slot:'N'},
+    {name:'philip salt',ipl:'RCB',slot:'N'},{name:'virat kohli',ipl:'RCB',slot:'C'},
+    {name:'rajat patidar',ipl:'RCB',slot:'N'},{name:'shivam dube',ipl:'CSK',slot:'N'},
+    {name:'sunil narine',ipl:'KKR',slot:'VC'},{name:'david miller',ipl:'DC',slot:'N'},
+    {name:'washington sundar',ipl:'GT',slot:'N'},{name:'krunal pandya',ipl:'RCB',slot:'N'},
+    {name:'rashid khan',ipl:'GT',slot:'N'},{name:'varun chakaravarthy',ipl:'KKR',slot:'N'},
+    {name:'matheesha pathirana',ipl:'KKR',slot:'N'},
   ]},
   { id:'kabir', name:"Kabir XI", owner:'Kabir', players:[
-    {name:'travis head',          ipl:'SRH', slot:'VC'},
-    {name:'quinton de kock',      ipl:'MI',  slot:'N'},
-    {name:'rishabh pant',         ipl:'LSG', slot:'N'},
-    {name:'tilak varma',          ipl:'MI',  slot:'N'},
-    {name:'rinku singh',          ipl:'KKR', slot:'N'},
-    {name:'cameron green',        ipl:'KKR', slot:'N'},
-    {name:'marco jansen',         ipl:'PBKS',slot:'N'},
-    {name:'lungi ngidi',          ipl:'DC',  slot:'N'},
-    {name:'noor ahmad',           ipl:'CSK', slot:'N'},
-    {name:'kuldeep yadav',        ipl:'DC',  slot:'N'},
-    {name:'jasprit bumrah',       ipl:'MI',  slot:'C'},
+    {name:'travis head',ipl:'SRH',slot:'VC'},{name:'quinton de kock',ipl:'MI',slot:'N'},
+    {name:'rishabh pant',ipl:'LSG',slot:'N'},{name:'tilak varma',ipl:'MI',slot:'N'},
+    {name:'rinku singh',ipl:'KKR',slot:'N'},{name:'cameron green',ipl:'KKR',slot:'N'},
+    {name:'marco jansen',ipl:'PBKS',slot:'N'},{name:'lungi ngidi',ipl:'DC',slot:'N'},
+    {name:'noor ahmad',ipl:'CSK',slot:'N'},{name:'kuldeep yadav',ipl:'DC',slot:'N'},
+    {name:'jasprit bumrah',ipl:'MI',slot:'C'},
   ]},
   { id:'rishobh', name:"Rishobh XI", owner:'Rishobh', players:[
-    {name:'suryakumar yadav',     ipl:'MI',  slot:'VC'},
-    {name:'sai sudharsan',        ipl:'GT',  slot:'C'},
-    {name:'heinrich klaasen',     ipl:'SRH', slot:'N'},
-    {name:'ishan kishan',         ipl:'SRH', slot:'N'},
-    {name:'vaibhav sooryavanshi', ipl:'RR',  slot:'N'},
-    {name:'jofra archer',         ipl:'RR',  slot:'N'},
-    {name:'will jacks',           ipl:'MI',  slot:'N'},
-    {name:'prasidh krishna',      ipl:'GT',  slot:'N'},
-    {name:'naman dhir',           ipl:'MI',  slot:'N'},
-    {name:'nuwan thushara',       ipl:'RCB', slot:'N'},
-    {name:'sarfaraz khan',        ipl:'CSK', slot:'N'},
+    {name:'suryakumar yadav',ipl:'MI',slot:'VC'},{name:'sai sudharsan',ipl:'GT',slot:'C'},
+    {name:'heinrich klaasen',ipl:'SRH',slot:'N'},{name:'ishan kishan',ipl:'SRH',slot:'N'},
+    {name:'vaibhav sooryavanshi',ipl:'RR',slot:'N'},{name:'jofra archer',ipl:'RR',slot:'N'},
+    {name:'will jacks',ipl:'MI',slot:'N'},{name:'prasidh krishna',ipl:'GT',slot:'N'},
+    {name:'naman dhir',ipl:'MI',slot:'N'},{name:'nuwan thushara',ipl:'RCB',slot:'N'},
+    {name:'sarfaraz khan',ipl:'CSK',slot:'N'},
   ]},
   { id:'kartik', name:"Kartik XI", owner:'Kartik', players:[
-    {name:'abhishek sharma',      ipl:'SRH', slot:'C'},
-    {name:'shreyas iyer',         ipl:'PBKS',slot:'VC'},
-    {name:'sanju samson',         ipl:'CSK', slot:'N'},
-    {name:'mitchell marsh',       ipl:'LSG', slot:'N'},
-    {name:'pat cummins',          ipl:'SRH', slot:'N'},
-    {name:'jos buttler',          ipl:'GT',  slot:'N'},
-    {name:'yuzvendra chahal',     ipl:'PBKS',slot:'N'},
-    {name:'devdutt padikkal',     ipl:'RCB', slot:'N'},
-    {name:'nandre burger',        ipl:'RR',  slot:'N'},
-    {name:'nitish kumar reddy',   ipl:'SRH', slot:'N'},
-    {name:'jacob bethell',        ipl:'RCB', slot:'N'},
+    {name:'abhishek sharma',ipl:'SRH',slot:'C'},{name:'shreyas iyer',ipl:'PBKS',slot:'VC'},
+    {name:'sanju samson',ipl:'CSK',slot:'N'},{name:'mitchell marsh',ipl:'LSG',slot:'N'},
+    {name:'pat cummins',ipl:'SRH',slot:'N'},{name:'jos buttler',ipl:'GT',slot:'N'},
+    {name:'yuzvendra chahal',ipl:'PBKS',slot:'N'},{name:'devdutt padikkal',ipl:'RCB',slot:'N'},
+    {name:'nandre burger',ipl:'RR',slot:'N'},{name:'nitish kumar reddy',ipl:'SRH',slot:'N'},
+    {name:'jacob bethell',ipl:'RCB',slot:'N'},
   ]},
   { id:'ashmit', name:"Ashmit's XI", owner:'Ashmit', players:[
-    {name:'shubman gill',         ipl:'GT',  slot:'N'},
-    {name:'kl rahul',             ipl:'DC',  slot:'VC'},
-    {name:'ruturaj gaikwad',      ipl:'CSK', slot:'N'},
-    {name:'aiden markram',        ipl:'LSG', slot:'N'},
-    {name:'axar patel',           ipl:'DC',  slot:'C'},
-    {name:'marcus stoinis',       ipl:'PBKS',slot:'N'},
-    {name:'ravindra jadeja',      ipl:'RR',  slot:'N'},
-    {name:'arshdeep singh',       ipl:'PBKS',slot:'N'},
-    {name:'khaleel ahmed',        ipl:'CSK', slot:'N'},
-    {name:'mukesh kumar',         ipl:'DC',  slot:'N'},
-    {name:'mohammed shami',       ipl:'LSG', slot:'N'},
+    {name:'shubman gill',ipl:'GT',slot:'N'},{name:'kl rahul',ipl:'DC',slot:'VC'},
+    {name:'ruturaj gaikwad',ipl:'CSK',slot:'N'},{name:'aiden markram',ipl:'LSG',slot:'N'},
+    {name:'axar patel',ipl:'DC',slot:'C'},{name:'marcus stoinis',ipl:'PBKS',slot:'N'},
+    {name:'ravindra jadeja',ipl:'RR',slot:'N'},{name:'arshdeep singh',ipl:'PBKS',slot:'N'},
+    {name:'khaleel ahmed',ipl:'CSK',slot:'N'},{name:'mukesh kumar',ipl:'DC',slot:'N'},
+    {name:'mohammed shami',ipl:'LSG',slot:'N'},
   ]},
   { id:'jaiveer', name:"Jaiveer XI", owner:'Jaiveer', players:[
-    {name:'rohit sharma',         ipl:'MI',  slot:'N'},
-    {name:'yashasvi jaiswal',     ipl:'RR',  slot:'N'},
-    {name:'nicholas pooran',      ipl:'LSG', slot:'VC'},
-    {name:'ajinkya rahane',       ipl:'KKR', slot:'N'},
-    {name:'hardik pandya',        ipl:'MI',  slot:'C'},
-    {name:'finn allen',           ipl:'KKR', slot:'N'},
-    {name:'shardul thakur',       ipl:'MI',  slot:'N'},
-    {name:'bhuvneshwar kumar',    ipl:'RCB', slot:'N'},
-    {name:'mohammed siraj',       ipl:'GT',  slot:'N'},
-    {name:'trent boult',          ipl:'MI',  slot:'N'},
-    {name:'josh hazlewood',       ipl:'RCB', slot:'N'},
+    {name:'rohit sharma',ipl:'MI',slot:'N'},{name:'yashasvi jaiswal',ipl:'RR',slot:'N'},
+    {name:'nicholas pooran',ipl:'LSG',slot:'VC'},{name:'ajinkya rahane',ipl:'KKR',slot:'N'},
+    {name:'hardik pandya',ipl:'MI',slot:'C'},{name:'finn allen',ipl:'KKR',slot:'N'},
+    {name:'shardul thakur',ipl:'MI',slot:'N'},{name:'bhuvneshwar kumar',ipl:'RCB',slot:'N'},
+    {name:'mohammed siraj',ipl:'GT',slot:'N'},{name:'trent boult',ipl:'MI',slot:'N'},
+    {name:'josh hazlewood',ipl:'RCB',slot:'N'},
   ]},
 ];
 
@@ -242,13 +209,13 @@ const NAME_MAP = {
   'josh hazlewood':'josh hazlewood',
 };
 const MERGE_KEYS = {
-  'philip salt':         ['philip salt','phil salt'],
-  'nitish kumar reddy':  ['nitish kumar reddy','nitish reddy'],
-  'bhuvneshwar kumar':   ['bhuvneshwar kumar','b kumar','bhuvi'],
-  'mohammed shami':      ['mohammed shami','m shami'],
-  'mohammed siraj':      ['mohammed siraj','m siraj'],
-  'washington sundar':   ['washington sundar','w sundar'],
-  'varun chakaravarthy': ['varun chakaravarthy','varun chakravarthy'],
+  'philip salt':['philip salt','phil salt'],
+  'nitish kumar reddy':['nitish kumar reddy','nitish reddy'],
+  'bhuvneshwar kumar':['bhuvneshwar kumar','b kumar','bhuvi'],
+  'mohammed shami':['mohammed shami','m shami'],
+  'mohammed siraj':['mohammed siraj','m siraj'],
+  'washington sundar':['washington sundar','w sundar'],
+  'varun chakaravarthy':['varun chakaravarthy','varun chakravarthy'],
 };
 
 function findStats(playerName){
@@ -259,11 +226,9 @@ function findStats(playerName){
   return merged;
 }
 
-// ── STATE ──────────────────────────────────────────────────────────────────
 let DB, stats={}, teamNames={}, renamingId=null;
 let lastDiscrepancies = [];
 
-// ── HELPERS ────────────────────────────────────────────────────────────────
 function calcRaw(p){ const s=findStats(p.name); return s.runs*100+s.wickets*2000+s.catches*250; }
 function calcPts(p){ const raw=calcRaw(p); return p.slot==='C'?raw*2:p.slot==='VC'?raw*1.5:raw; }
 function teamTotal(team){ return team.players.reduce((s,p)=>s+calcPts(p),0); }
@@ -271,16 +236,15 @@ function fmt(n){ return Math.round(n).toLocaleString(); }
 function medal(i){ return i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`; }
 function rankColor(i){ return i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#cd7f32':'#aaa'; }
 
-// ── FIREBASE BOOT ──────────────────────────────────────────────────────────
 async function boot(){
   try{
     const app=initializeApp({databaseURL:DB_URL},'ipl');
     DB=getDatabase(app);
-    onValue(ref(DB,'stats'),s=>{ stats=s.val()||{}; render(); });
-    onValue(ref(DB,'teamNames'),s=>{ teamNames=s.val()||{}; render(); });
+    onValue(ref(DB,path('stats')),s=>{ stats=s.val()||{}; render(); });
+    onValue(ref(DB,path('teamNames')),s=>{ teamNames=s.val()||{}; render(); });
     document.getElementById('loading').style.display='none';
     document.getElementById('app').style.display='block';
-    const metaSnap=await get(ref(DB,'lastSync'));
+    const metaSnap=await get(ref(DB,path('lastSync')));
     const ls=metaSnap.val()||0;
     if(ls){ setStatus('green','Last synced: '+new Date(ls).toLocaleTimeString()+' · Click ↻ REFRESH to update'); }
     else{ setStatus('yellow','Click ↻ REFRESH to load IPL 2026 stats'); }
@@ -292,19 +256,51 @@ function setStatus(color,text){
   const s=document.getElementById('syncStatus'); if(s) s.textContent=text;
 }
 
-// ── DEV: WIPE ALL MATCH DATA ──────────────────────────────────────────────
 window.wipeAll = async function(){
-  if(!confirm('⚠️ This will DELETE all stats, processed matches, and Cricbuzz cache from Firebase. Team names will be kept. Continue?')) return;
+  if(!confirm(`⚠️ Wipe all match data for "${LEAGUE_ID}" league? Team names kept. Continue?`)) return;
   setStatus('yellow','Wiping all match data…');
   try{
-    await remove(ref(DB,'stats'));
-    await remove(ref(DB,'processedMatches'));
-    await remove(ref(DB,'cricbuzzIds'));
-    await remove(ref(DB,'lastSync'));
-    setStatus('green','✅ Wiped. Click ↻ REFRESH to re-pull all matches from scratch.');
-    console.log('All match data wiped successfully.');
+    await remove(ref(DB,path('stats')));
+    await remove(ref(DB,path('processedMatches')));
+    await remove(ref(DB,path('cricbuzzIds')));
+    await remove(ref(DB,path('lastSync')));
+    setStatus('green','✅ Wiped. Click ↻ REFRESH to re-pull all matches.');
   }catch(e){ console.error(e); setStatus('red','Wipe failed: '+e.message); }
 };
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SHARED CACHE — read by BOTH leagues, populated by whoever fetches first
+// ═══════════════════════════════════════════════════════════════════════════
+async function cacheGetScorecard(matchId){
+  try{ const s=await get(ref(DB,`sharedCache/matchScorecards/${matchId}`)); return s.val(); }catch(e){ return null; }
+}
+async function cacheSetScorecard(matchId,data){
+  try{ await set(ref(DB,`sharedCache/matchScorecards/${matchId}`),data); }catch(e){ console.warn('cache write failed:',e.message); }
+}
+async function cacheGetCricbuzzScorecard(cbId){
+  try{ const s=await get(ref(DB,`sharedCache/cricbuzzScorecards/${cbId}`)); return s.val(); }catch(e){ return null; }
+}
+async function cacheSetCricbuzzScorecard(cbId,parsed){
+  try{ await set(ref(DB,`sharedCache/cricbuzzScorecards/${cbId}`),parsed); }catch(e){}
+}
+async function cacheGetCricbuzzId(cricapiId){
+  try{ const s=await get(ref(DB,`sharedCache/cricbuzzIdMap/${cricapiId}`)); return s.val(); }catch(e){ return null; }
+}
+async function cacheSetCricbuzzId(cricapiId,cbId){
+  try{ await set(ref(DB,`sharedCache/cricbuzzIdMap/${cricapiId}`),cbId); }catch(e){}
+}
+
+// Returns {data, error, fromCache}. Caches on success.
+async function getScorecardData(matchId){
+  const cached=await cacheGetScorecard(matchId);
+  if(cached){ console.log(`[scorecard ${matchId}] cache hit`); return {data:cached, fromCache:true}; }
+  const r=await fetch(`https://api.cricapi.com/v1/match_scorecard?id=${matchId}&apikey=${API_KEY}`);
+  const sd=await r.json();
+  if(sd.status==='failure') return {error:sd.reason||'api failure', fromCache:false};
+  if(!sd.data?.scorecard?.length) return {error:'empty scorecard', fromCache:false};
+  await cacheSetScorecard(matchId, sd.data);
+  return {data:sd.data, fromCache:false};
+}
 
 // ── CRICBUZZ HELPERS ───────────────────────────────────────────────────────
 function parseCricbuzzScorecard(data){
@@ -336,10 +332,11 @@ function parseCricbuzzScorecard(data){
 }
 
 async function findCricbuzzMatchId(cricapiMatchId, team1Name, team2Name, matchDateMs){
-  try{
-    const cached = await get(ref(DB,'cricbuzzIds/'+cricapiMatchId));
-    if(cached.val()) return cached.val();
-  }catch(e){}
+  // Shared cache first
+  const sharedCached = await cacheGetCricbuzzId(cricapiMatchId);
+  if(sharedCached) return sharedCached;
+  // Legacy per-league cache (for matches looked up before v8)
+  try{ const legacy=await get(ref(DB,path('cricbuzzIds')+'/'+cricapiMatchId)); if(legacy.val()){ await cacheSetCricbuzzId(cricapiMatchId,legacy.val()); return legacy.val(); } }catch(e){}
 
   const t1s=TEAM_SHORT[team1Name.toLowerCase()];
   const t2s=TEAM_SHORT[team2Name.toLowerCase()];
@@ -359,7 +356,7 @@ async function findCricbuzzMatchId(cricapiMatchId, team1Name, team2Name, matchDa
             const mDay=new Date(parseInt(mi.startDate)).toDateString();
             const t1=mi.team1?.teamSName, t2=mi.team2?.teamSName;
             if(mDay===matchDay&&((t1===t1s&&t2===t2s)||(t1===t2s&&t2===t1s))){
-              await set(ref(DB,'cricbuzzIds/'+cricapiMatchId), mi.matchId);
+              await cacheSetCricbuzzId(cricapiMatchId, mi.matchId);
               return mi.matchId;
             }
           }
@@ -371,16 +368,18 @@ async function findCricbuzzMatchId(cricapiMatchId, team1Name, team2Name, matchDa
 }
 
 async function fetchCricbuzzStats(matchId){
+  const cached=await cacheGetCricbuzzScorecard(matchId);
+  if(cached){ console.log(`[cb scorecard ${matchId}] cache hit`); return cached; }
   try{
     const r=await fetch(`${PROXY_URL}?matchId=${matchId}`);
     const d=await r.json();
-    return parseCricbuzzScorecard(d);
+    const parsed=parseCricbuzzScorecard(d);
+    if(parsed && Object.keys(parsed).length>0) await cacheSetCricbuzzScorecard(matchId, parsed);
+    return parsed;
   }catch(e){ console.warn('Cricbuzz scorecard fetch failed:',e.message); }
   return null;
 }
 
-// Try Cricbuzz as primary source for a match (when CricAPI lags).
-// Returns parsed stats keyed by lowercase player name, or null if Cricbuzz also has nothing.
 async function tryCricbuzzPrimary(m, matchLabel){
   const matchTs=m.dateTimeGMT?new Date(m.dateTimeGMT).getTime():0;
   if(!matchTs) return null;
@@ -391,9 +390,7 @@ async function tryCricbuzzPrimary(m, matchLabel){
   if(!cbId){ console.warn(`[${matchLabel}] no Cricbuzz match id found`); return null; }
   const cbStats=await fetchCricbuzzStats(cbId);
   if(!cbStats||!Object.keys(cbStats).length){ console.warn(`[${matchLabel}] Cricbuzz returned empty scorecard`); return null; }
-  const t1s=TEAM_SHORT[t1.toLowerCase()]||'';
-  const t2s=TEAM_SHORT[t2.toLowerCase()]||'';
-  return { cbStats, t1s, t2s };
+  return { cbStats };
 }
 
 function compareStats(cricapiMatchStats, cbStats, matchName){
@@ -416,9 +413,7 @@ function compareStats(cricapiMatchStats, cbStats, matchName){
   return discrepancies;
 }
 
-// ── DISCREPANCY POPUP ──────────────────────────────────────────────────────
 window.closeDiscModal=function(){ document.getElementById('discModal').style.display='none'; };
-
 window.revertDisc=async function(){
   if(!lastDiscrepancies.length){ closeDiscModal(); return; }
   setStatus('yellow','Reverting Cricbuzz corrections…');
@@ -427,9 +422,7 @@ window.revertDisc=async function(){
     const current=stats[key]||{runs:0,wickets:0,catches:0};
     const diff=d.cricbuzz-d.cricapi;
     current[d.field]=Math.max(0,(current[d.field]||0)-diff);
-    await fetch(`https://ipl-fantasy-55b9f-default-rtdb.firebaseio.com/stats/${encodeURIComponent(key)}.json`,{
-      method:'PATCH', body:JSON.stringify(current)
-    });
+    await fetch(`${DB_URL}/${path('stats')}/${encodeURIComponent(key)}.json`,{ method:'PATCH', body:JSON.stringify(current) });
   }
   setStatus('green','↩ Reverted Cricbuzz corrections · '+new Date().toLocaleTimeString());
   closeDiscModal();
@@ -458,7 +451,6 @@ function showDiscrepancyPopup(discrepancies){
   document.getElementById('discModal').style.display='flex';
 }
 
-// ── MAIN SYNC ─────────────────────────────────────────────────────────────
 window.doSync=async function(){
   setStatus('yellow','Checking for new IPL 2026 matches…');
   try{
@@ -468,7 +460,7 @@ window.doSync=async function(){
     const completed=(sid.data?.matchList||[]).filter(m=>m.matchEnded===true);
     if(!completed.length){ setStatus('yellow','No completed IPL 2026 matches yet'); return; }
 
-    const processedSnap=await get(ref(DB,'processedMatches'));
+    const processedSnap=await get(ref(DB,path('processedMatches')));
     const processed=processedSnap.val()||{};
     const hasProcessedHistory=Object.keys(processed).length>0;
 
@@ -482,7 +474,7 @@ window.doSync=async function(){
 
     const aggRuns={},aggWkts={},aggCatch={},aggTeam={};
     if(hasProcessedHistory){
-      const existingSnap=await get(ref(DB,'stats'));
+      const existingSnap=await get(ref(DB,path('stats')));
       const existing=existingSnap.val()||{};
       for(const [k,v] of Object.entries(existing)){
         aggRuns[k]=v.runs||0; aggWkts[k]=v.wickets||0; aggCatch[k]=v.catches||0;
@@ -495,7 +487,7 @@ window.doSync=async function(){
     const failedMatches=[];
     const pendingMatches=[];
     const cricbuzzPrimaryMatches=[];
-    let processedCount=0;
+    let processedCount=0; let cacheHits=0;
 
     for(let i=0;i<newMatches.length;i++){
       const m=newMatches[i];
@@ -503,46 +495,41 @@ window.doSync=async function(){
       setStatus('yellow',`Match ${i+1}/${newMatches.length}: ${matchLabel}…`);
 
       try{
-        await new Promise(r=>setTimeout(r,400));
-        const sr=await fetch(`https://api.cricapi.com/v1/match_scorecard?id=${m.id}&apikey=${API_KEY}`);
-        const sd=await sr.json();
+        await new Promise(r=>setTimeout(r,200));
+        const result=await getScorecardData(m.id);
 
-        // ── CRICAPI LAG → CRICBUZZ FALLBACK ──
-        const reason=(sd.reason||'').toLowerCase();
-        if(sd.status==='failure' && reason.includes('not found')){
-          console.log(`[${matchLabel}] CricAPI scorecard lag detected, trying Cricbuzz primary…`);
-          setStatus('yellow',`${matchLabel}: CricAPI lag, fetching from Cricbuzz…`);
-          const cbResult=await tryCricbuzzPrimary(m, matchLabel);
-          if(cbResult){
-            const {cbStats} = cbResult;
-            for(const [name, s] of Object.entries(cbStats)){
-              aggRuns[name] = (aggRuns[name]||0) + (s.runs||0);
-              aggWkts[name] = (aggWkts[name]||0) + (s.wickets||0);
-              aggCatch[name] = (aggCatch[name]||0) + (s.catches||0);
+        if(result.error){
+          const reason=result.error.toLowerCase();
+          if(reason.includes('not found')){
+            console.log(`[${matchLabel}] CricAPI scorecard lag, trying Cricbuzz primary…`);
+            setStatus('yellow',`${matchLabel}: CricAPI lag, fetching from Cricbuzz…`);
+            const cbResult=await tryCricbuzzPrimary(m, matchLabel);
+            if(cbResult){
+              const {cbStats}=cbResult;
+              for(const [name,s] of Object.entries(cbStats)){
+                aggRuns[name]=(aggRuns[name]||0)+(s.runs||0);
+                aggWkts[name]=(aggWkts[name]||0)+(s.wickets||0);
+                aggCatch[name]=(aggCatch[name]||0)+(s.catches||0);
+              }
+              newProcessed[m.id]=true; processedCount++;
+              cricbuzzPrimaryMatches.push(matchLabel);
+              continue;
             }
-            newProcessed[m.id]=true;
-            processedCount++;
-            cricbuzzPrimaryMatches.push(matchLabel);
-            console.log(`[${matchLabel}] ✅ Synced via Cricbuzz primary (${Object.keys(cbStats).length} players)`);
-            continue;
+            pendingMatches.push(matchLabel); continue;
           }
-          console.log(`[${matchLabel}] Cricbuzz also unavailable, marking pending`);
-          pendingMatches.push(matchLabel);
-          continue;
+          throw new Error(result.error);
         }
-        if(sd.status==='failure') throw new Error(sd.reason||'api failure');
-        if(!sd.data?.scorecard?.length) throw new Error('empty scorecard');
 
-        // ── NORMAL CRICAPI PATH ──
+        if(result.fromCache) cacheHits++;
+        const scorecardData=result.data;
         const matchRuns={},matchWkts={},matchCatch={};
 
-        for(const inn of sd.data.scorecard){
+        for(const inn of scorecardData.scorecard){
           const batTeam=(inn.batTeamDetails?.batTeamShortName||inn.batTeamName||'').toUpperCase();
           for(const bat of (inn.batting||[])){
             const n=(bat.batsman?.name||bat.name||'').toLowerCase(); if(!n) continue;
             const r=parseInt(bat.r)||0;
-            aggRuns[n]=(aggRuns[n]||0)+r;
-            matchRuns[n]=(matchRuns[n]||0)+r;
+            aggRuns[n]=(aggRuns[n]||0)+r; matchRuns[n]=(matchRuns[n]||0)+r;
             if(batTeam) aggTeam[n]=batTeam;
             const dis=bat['dismissal-text']||bat.dismissal||'';
             const cm=dis.match(/^c\s+(.+?)\s+b\s+/i);
@@ -552,24 +539,20 @@ window.doSync=async function(){
           for(const bowl of (inn.bowling||[])){
             const n=(bowl.bowler?.name||bowl.name||'').toLowerCase(); if(!n) continue;
             const w=parseInt(bowl.w)||0;
-            aggWkts[n]=(aggWkts[n]||0)+w;
-            matchWkts[n]=(matchWkts[n]||0)+w;
+            aggWkts[n]=(aggWkts[n]||0)+w; matchWkts[n]=(matchWkts[n]||0)+w;
             if(bowlTeam) aggTeam[n]=bowlTeam;
           }
         }
 
-        newProcessed[m.id]=true;
-        processedCount++;
+        newProcessed[m.id]=true; processedCount++;
 
-        // ── CRICBUZZ VERIFICATION (only when CricAPI succeeded; recent matches only) ──
         const matchTs=m.dateTimeGMT?new Date(m.dateTimeGMT).getTime():0;
         const isRecent=matchTs>0&&(Date.now()-matchTs)<14*24*60*60*1000;
         if(isRecent) setStatus('yellow',`Verifying ${matchLabel} with Cricbuzz…`);
         try{
-          const teams=sd.data?.teams||[];
+          const teams=scorecardData.teams||[];
           const t1=teams[0]||'', t2=teams[1]||'';
           const cbMatchId=isRecent?await findCricbuzzMatchId(m.id,t1,t2,matchTs):null;
-
           if(cbMatchId){
             const cbStats=await fetchCricbuzzStats(cbMatchId);
             if(cbStats){
@@ -577,7 +560,6 @@ window.doSync=async function(){
               for(const [k,v] of Object.entries(matchRuns)){ if(!cricapiMatchStats[k]) cricapiMatchStats[k]={runs:0,wickets:0,catches:0}; cricapiMatchStats[k].runs=v; }
               for(const [k,v] of Object.entries(matchWkts)){ if(!cricapiMatchStats[k]) cricapiMatchStats[k]={runs:0,wickets:0,catches:0}; cricapiMatchStats[k].wickets=v; }
               for(const [k,v] of Object.entries(matchCatch)){ if(!cricapiMatchStats[k]) cricapiMatchStats[k]={runs:0,wickets:0,catches:0}; cricapiMatchStats[k].catches=v; }
-
               const disc=compareStats(cricapiMatchStats,cbStats,matchLabel);
               if(disc.length){
                 for(const d of disc){
@@ -591,8 +573,6 @@ window.doSync=async function(){
                 allDiscrepancies.push(...disc);
               }
             }
-          } else {
-            console.log('Could not find Cricbuzz match for:', matchLabel);
           }
         }catch(e){ console.warn('Cricbuzz verification error:',e.message); }
 
@@ -602,31 +582,31 @@ window.doSync=async function(){
       }
     }
 
-    // Save to Firebase
     const mergedStats={};
     const allKeys=[...new Set([...Object.keys(aggRuns),...Object.keys(aggWkts),...Object.keys(aggCatch)])];
     for(const c of allKeys){
       mergedStats[c]={runs:aggRuns[c]||0,wickets:aggWkts[c]||0,catches:aggCatch[c]||0,team:aggTeam[c]||''};
     }
-    await set(ref(DB,'stats'),mergedStats);
-    await set(ref(DB,'processedMatches'),newProcessed);
-    await set(ref(DB,'lastSync'),Date.now());
+    await set(ref(DB,path('stats')),mergedStats);
+    await set(ref(DB,path('processedMatches')),newProcessed);
+    await set(ref(DB,path('lastSync')),Date.now());
 
-    const discMsg=allDiscrepancies.length?` · ⚠️ ${allDiscrepancies.length} Cricbuzz correction(s) applied`:'';
-    const cbPrimaryMsg=cricbuzzPrimaryMatches.length?` · 🟢 ${cricbuzzPrimaryMatches.length} via Cricbuzz fallback`:'';
+    const discMsg=allDiscrepancies.length?` · ⚠️ ${allDiscrepancies.length} Cricbuzz correction(s)`:'';
+    const cbPrimaryMsg=cricbuzzPrimaryMatches.length?` · 🟢 ${cricbuzzPrimaryMatches.length} via Cricbuzz`:'';
+    const cacheMsg=cacheHits?` · 💾 ${cacheHits} from cache`:'';
     const time=new Date().toLocaleTimeString();
 
     if(processedCount===0 && pendingMatches.length>0 && failedMatches.length===0){
-      setStatus('yellow',`⏳ ${pendingMatches.length} match(es) not yet on CricAPI or Cricbuzz. Try again shortly: ${pendingMatches.join(', ')}`);
+      setStatus('yellow',`⏳ ${pendingMatches.length} match(es) not yet available. Try shortly: ${pendingMatches.join(', ')}`);
     } else if(processedCount===0 && failedMatches.length>0){
       setStatus('red',`❌ All match(es) failed: ${failedMatches.map(f=>f.label+' ('+f.error+')').join(', ')}`);
     } else if(failedMatches.length>0 || pendingMatches.length>0){
       const parts=[`✅ ${processedCount} synced`];
-      if(pendingMatches.length) parts.push(`⏳ ${pendingMatches.length} pending (${pendingMatches.join(', ')})`);
+      if(pendingMatches.length) parts.push(`⏳ ${pendingMatches.length} pending`);
       if(failedMatches.length) parts.push(`❌ ${failedMatches.length} failed`);
-      setStatus('yellow',parts.join(' · ')+`${cbPrimaryMsg} · ${time}${discMsg}`);
+      setStatus('yellow',parts.join(' · ')+`${cbPrimaryMsg}${cacheMsg} · ${time}${discMsg}`);
     } else {
-      setStatus('green',`✅ ${processedCount} new match(es) synced · ${completed.length} total${cbPrimaryMsg} · ${time}${discMsg}`);
+      setStatus('green',`✅ ${processedCount} new match(es) synced · ${completed.length} total${cbPrimaryMsg}${cacheMsg} · ${time}${discMsg}`);
     }
 
     if(allDiscrepancies.length) showDiscrepancyPopup(allDiscrepancies);
@@ -634,7 +614,6 @@ window.doSync=async function(){
   }catch(e){ console.error(e); setStatus('red','❌ '+e.message); }
 };
 
-// ── TABS ──────────────────────────────────────────────────────────────────
 window.switchTab=function(idx,btn){
   document.getElementById('tab0').style.display=idx===0?'block':'none';
   document.getElementById('tab1').style.display=idx===1?'block':'none';
@@ -642,7 +621,6 @@ window.switchTab=function(idx,btn){
   btn.classList.add('active');
 };
 
-// ── RENAME ────────────────────────────────────────────────────────────────
 window.openRename=function(teamId){
   renamingId=teamId;
   const cur=teamNames[teamId]||TEAMS_DEF.find(t=>t.id===teamId)?.name||'';
@@ -654,10 +632,9 @@ window.closeRename=function(){ document.getElementById('renameModal').style.disp
 window.confirmRename=function(){
   if(!renamingId) return;
   const val=document.getElementById('renameInput').value.trim(); if(!val) return;
-  update(ref(DB,'teamNames'),{[renamingId]:val}); closeRename();
+  update(ref(DB,path('teamNames')),{[renamingId]:val}); closeRename();
 };
 
-// ── RENDER ────────────────────────────────────────────────────────────────
 function render(){ renderTeams(); renderPlayers(); }
 
 function renderTeams(){
@@ -692,8 +669,7 @@ function renderTeams(){
       const border=i===0?'#f5a623':i===1?'#888':i===2?'#cd7f32':'#252535';
       const roster=t.players.map(p=>{
         const s=findStats(p.name), pts=calcPts(p), hasPts=pts>0;
-        const slotBadge=p.slot==='C'?'<span style="background:#FFD700;color:#000;border-radius:3px;font-size:9px;font-weight:900;padding:1px 4px;margin-left:3px;vertical-align:middle">C</span>':
-                        p.slot==='VC'?'<span style="background:#aaa;color:#000;border-radius:3px;font-size:9px;font-weight:900;padding:1px 4px;margin-left:3px;vertical-align:middle">VC</span>':'';
+        const slotBadge=p.slot==='C'?'<span style="background:#FFD700;color:#000;border-radius:3px;font-size:9px;font-weight:900;padding:1px 4px;margin-left:3px;vertical-align:middle">C</span>':p.slot==='VC'?'<span style="background:#aaa;color:#000;border-radius:3px;font-size:9px;font-weight:900;padding:1px 4px;margin-left:3px;vertical-align:middle">VC</span>':'';
         return `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid #151525">
           <div style="flex:1;min-width:0;overflow:hidden">
             <span style="font-size:13px;font-weight:700;color:${hasPts?'#fff':'#999'}">${p.name}</span>${slotBadge}<span style="font-size:10px;color:#666;margin-left:4px">${p.ipl}</span>
